@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Xác nhận đặt phòng</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f9fc;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      background: #fff;
+      padding: 30px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    p {
+      color: #555;
+      line-height: 1.6;
+    }
+    .info {
+      background-color: #f2f2f2;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .info strong {
+      display: inline-block;
+      width: 130px;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Xác nhận đặt phòng Homestay</h2>
+    <p>Chào {{.GuestName}},</p>
+    <p>
+      Cảm ơn bạn đã đặt phòng tại <strong>{{.HomestayName}}</strong>. Đây là thông tin đặt phòng của bạn:
+    </p>
+
+    <div class="info">
+      <p><strong>Ngày nhận phòng:</strong> {{.CheckInDate}}</p>
+      <p><strong>Ngày trả phòng:</strong> {{.CheckOutDate}}</p>
+      <p><strong>Số đêm:</strong> {{.Nights}} đêm</p>
+      <p><strong>Số phòng:</strong> {{.Rooms}} phòng</p>
+      <p><strong>Tổng tiền:</strong> {{.TotalPrice}}</p>
+    </div>
+
+    <p>Chi tiết đặt phòng: 
+        <a href="{{.BookingLink}}">Xem tại đây</a>
+    </p>
+
+    <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+    <p>Hẹn gặp bạn sớm!</p>
+
+    <div class="footer">
+      &copy; {{.Year}} {{.HomestayName}}. Mọi quyền được bảo lưu.
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,661 @@
+{
+  "info": {
+    "_postman_id": "homestay-api-collection-001",
+    "name": "Homestay API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080/api" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"phone\": \"0123456789\",\n  \"password\": \"password123\",\n  \"role\": \"guest\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Booking",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_request_id\": 1,\n  \"user_id\": 1,\n  \"room_id\": 1,\n  \"check_in\": \"2024-07-01T14:00:00Z\",\n  \"check_out\": \"2024-07-03T12:00:00Z\",\n  \"num_guests\": 2,\n  \"total_amount\": 1000000,\n  \"status\": \"confirmed\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Booking By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/1",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Booking Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "1", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"checked_in\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Booking",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/1",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "1"]
+            }
+          }
+        },
+        {
+          "name": "List Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/search?user_id=1&page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "search"],
+              "query": [
+                { "key": "user_id", "value": "1" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Review",
+      "item": [
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["reviews"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"homestayId\": 1,\n  \"bookingId\": 1,\n  \"rating\": 5,\n  \"comment\": \"Phòng rất sạch sẽ!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Review By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["reviews", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["reviews", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Phòng ổn, sẽ quay lại!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["reviews", "1"]
+            }
+          }
+        },
+        {
+          "name": "List Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["reviews"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews/search?userId=1&page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["reviews", "search"],
+              "query": [
+                { "key": "userId", "value": "1" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments",
+              "host": ["{{base_url}}"],
+              "path": ["payments"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"booking_id\": 1,\n  \"amount\": 1000000,\n  \"payment_method\": \"cash\",\n  \"payment_status\": \"completed\",\n  \"transaction_id\": \"TXN123456\",\n  \"payment_date\": \"2024-07-01T15:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Payment By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Payment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_status\": \"refunded\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Payment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "1"]
+            }
+          }
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/search?booking_id=1&page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "search"],
+              "query": [
+                { "key": "booking_id", "value": "1" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Homestay",
+      "item": [
+        {
+          "name": "Tạo Homestay",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Homestay ABC\",\n  \"description\": \"Một homestay đẹp gần biển\",\n  \"address\": \"123 Đường ABC, Quận 1\",\n  \"city\": \"Hồ Chí Minh\",\n  \"district\": \"Quận 1\",\n  \"ward\": \"Phường Bến Nghé\",\n  \"latitude\": 10.7769,\n  \"longitude\": 106.7009\n}"
+            }
+          }
+        },
+        {
+          "name": "Danh sách Homestay của Host",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays?page=1&page_size=10",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Chi tiết Homestay theo ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays/1",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cập nhật Homestay",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays/1",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Homestay ABC Updated\",\n  \"description\": \"Mô tả mới\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa Homestay",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays/1",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays", "1"]
+            }
+          }
+        },
+        {
+          "name": "Thống kê Homestay của Host",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays/stats",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Thống kê Homestay theo ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays/1/stats",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays", "1", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Bật/Tắt trạng thái Homestay",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays/1/toggle-status",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays", "1", "toggle-status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Room",
+      "item": [
+        {
+          "name": "Tạo Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/rooms",
+              "host": ["{{base_url}}"],
+              "path": ["host", "rooms"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"homestayId\": 1,\n  \"name\": \"Phòng đôi\",\n  \"description\": \"Phòng đôi rộng rãi, view đẹp\",\n  \"type\": \"double\",\n  \"capacity\": 2,\n  \"price\": 500000,\n  \"priceType\": \"per_night\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Danh sách Room theo Homestay",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/rooms?homestay_id=1&page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["host", "rooms"],
+              "query": [
+                { "key": "homestay_id", "value": "1" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Chi tiết Room theo ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/rooms/1",
+              "host": ["{{base_url}}"],
+              "path": ["host", "rooms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cập nhật Room",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/rooms/1",
+              "host": ["{{base_url}}"],
+              "path": ["host", "rooms", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Phòng đôi cập nhật\",\n  \"description\": \"Mô tả mới\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Xóa Room",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/rooms/1",
+              "host": ["{{base_url}}"],
+              "path": ["host", "rooms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Tạo Room Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/rooms/availability",
+              "host": ["{{base_url}}"],
+              "path": ["host", "rooms", "availability"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomId\": 1,\n  \"date\": \"2024-07-10\",\n  \"status\": \"available\",\n  \"price\": 600000\n}"
+            }
+          }
+        },
+        {
+          "name": "Cập nhật Room Availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/rooms/availability/1",
+              "host": ["{{base_url}}"],
+              "path": ["host", "rooms", "availability", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"booked\",\n  \"price\": 650000\n}"
+            }
+          }
+        },
+        {
+          "name": "Thống kê Room theo Homestay",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/host/homestays/1/rooms/stats",
+              "host": ["{{base_url}}"],
+              "path": ["host", "homestays", "1", "rooms", "stats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
