@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import home from "../../asset/home.webp";
+import { HomestayListRequest } from "../../types";
 
 interface HeroProps {
-  onSearch: (filters: any) => void;
+  onSearch: (filters: HomestayListRequest) => void;
 }
 
 const Hero: React.FC<HeroProps> = ({ onSearch }) => {
@@ -15,6 +16,19 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
   });
 
   const handleSearch = () => {
+    console.log("Hero search data:", searchData);
+
+    // Kiểm tra xem có đủ thông tin không
+    if (!searchData.checkIn || !searchData.checkOut) {
+      alert("Vui lòng chọn ngày nhận phòng và ngày trả phòng");
+      return;
+    }
+
+    if (searchData.checkOut <= searchData.checkIn) {
+      alert("Ngày trả phòng phải sau ngày nhận phòng");
+      return;
+    }
+
     onSearch({
       city: searchData.location,
       checkIn: searchData.checkIn,
@@ -80,6 +94,7 @@ const Hero: React.FC<HeroProps> = ({ onSearch }) => {
                   onChange={(e) =>
                     setSearchData({ ...searchData, checkOut: e.target.value })
                   }
+                  min={searchData.checkIn || undefined}
                 />
               </div>
 

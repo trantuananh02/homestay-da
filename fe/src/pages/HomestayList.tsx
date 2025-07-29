@@ -28,13 +28,29 @@ const HomestayList: React.FC = () => {
 
   useEffect(() => {
     if (location.state?.filters) {
-      setFilters((prev) => ({ ...prev, ...location.state.filters, page: 1 }));
+      console.log(
+        "Received filters from location.state:",
+        location.state.filters
+      );
+      // Reset hoàn toàn filters thay vì merge
+      setFilters({
+        page: 1,
+        pageSize: DEFAULT_PAGE_SIZE,
+        search: "",
+        city: "",
+        district: "",
+        status: "active",
+        checkIn: location.state.filters.checkIn || "",
+        checkOut: location.state.filters.checkOut || "",
+        guests: location.state.filters.guests || 0,
+      });
     }
   }, [location.state]);
 
   const loadHomestays = async () => {
     try {
       setLoading(true);
+      console.log("Calling API with filters:", filters);
       const response = await homestayService.getPublicHomestayList(filters);
       const newList =
         filters.page === 1

@@ -462,7 +462,8 @@ func (h *HomestayLogic) ToggleHomestayStatus(homestayID, hostID int) (*types.Hom
 
 // logic guest
 func (h *HomestayLogic) GetPublicHomestayList(req *types.HomestayListRequest) (*types.HomestayListResponse, error) {
-	logx.Info(req)
+	logx.Info("GetPublicHomestayList called with request:", req)
+	logx.Info("CheckIn:", req.CheckIn, "CheckOut:", req.CheckOut, "Guests:", req.Guests)
 
 	page := req.Page
 	if page < 1 {
@@ -501,14 +502,21 @@ func (h *HomestayLogic) GetPublicHomestayList(req *types.HomestayListRequest) (*
 		searchReq.GuestCount = &req.Guests
 	}
 
+	logx.Info("Search request:", searchReq)
+
 	var homestays []*model.Homestay
 	var total int
 	var err error
 
 	if req.CheckIn != "" || req.CheckOut != "" || req.Guests > 0 {
+		logx.Info("Using SearchAvailable")
+		logx.Info("SearchAvailable params - CheckIn:", req.CheckIn, "CheckOut:", req.CheckOut, "Guests:", req.Guests)
 		homestays, total, err = h.svcCtx.HomestayRepo.SearchAvailable(h.ctx, searchReq)
+		logx.Info("SearchAvailable result - Found homestays:", len(homestays), "Total:", total)
 		} else {
+		logx.Info("Using Search")
 		homestays, total, err = h.svcCtx.HomestayRepo.Search(h.ctx, searchReq)
+		logx.Info("Search result - Found homestays:", len(homestays), "Total:", total)
 	}
 
 

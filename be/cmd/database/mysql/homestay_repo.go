@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type HomestayRepo struct {
@@ -319,6 +320,8 @@ func (r *HomestayRepo) Search(ctx context.Context, req *model.HomestaySearchRequ
 }
 
 func (r *HomestayRepo) SearchAvailable(ctx context.Context, req *model.HomestaySearchRequest) ([]*model.Homestay, int, error) {
+	logx.Info("SearchAvailable called with:", req)
+
 	countQuery := `
 		SELECT COUNT(*) FROM homestay h
 		WHERE h.status = 'active'
@@ -365,6 +368,8 @@ func (r *HomestayRepo) SearchAvailable(ctx context.Context, req *model.HomestayS
 	args = append(args, req.CheckIn, req.CheckOut, req.GuestCount)
 	paramCount := 4
 
+	logx.Info("SearchAvailable base args:", args)
+
 	// Các điều kiện lọc bổ sung
 	if req.Name != nil && *req.Name != "" {
 		countQuery += fmt.Sprintf(" AND h.name ILIKE $%d", paramCount)
@@ -398,8 +403,10 @@ func (r *HomestayRepo) SearchAvailable(ctx context.Context, req *model.HomestayS
 	var total int
 	err := r.db.QueryRowContext(ctx, countQuery, args...).Scan(&total)
 	if err != nil {
+		logx.Error("Error counting homestays:", err)
 		return nil, 0, fmt.Errorf("error counting homestays: %w", err)
 	}
+	logx.Info("SearchAvailable count result:", total)
 
 	// Phân trang
 	offset := (req.Page - 1) * req.PageSize
