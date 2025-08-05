@@ -163,7 +163,7 @@ export interface User {
   name: string;
   email: string;
   phone?: string;
-  role: "guest" | "host" | "admin";
+  role: "guest" | "host" | "admin"; // Keep all roles for existing users, but registration only allows "guest"
   avatar?: string;
   createdAt: string;
 }

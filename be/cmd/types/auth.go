@@ -6,7 +6,7 @@ type RegisterRequest struct {
 	Email    string  `json:"email" binding:"required,email" example:"user@example.com"`
 	Phone    *string `json:"phone,omitempty" example:"0123456789"`
 	Password string  `json:"password" binding:"required,min=6" example:"password123"`
-	Role     string  `json:"role" binding:"required,oneof=admin host guest" example:"guest"`
+	Role     string  `json:"role" binding:"required,eq=guest" example:"guest"`
 }
 
 // LoginRequest request đăng nhập

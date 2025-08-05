@@ -12,7 +12,7 @@ export interface RegisterRequest {
   email: string;
   phone?: string;
   password: string;
-  role: "admin" | "host" | "guest";
+  role: "guest"; // Only allow guest registration
 }
 
 export interface LoginResponse {

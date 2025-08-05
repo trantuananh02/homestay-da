@@ -31,7 +31,9 @@ func NewMailClient(from, username, password string) *MailClient {
 // SendText gửi email dạng text
 func (mc *MailClient) SendText(to, subject, body string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", mc.from)
+	// Sử dụng format "Name <email>" để đảm bảo hiển thị đúng
+	fromHeader := fmt.Sprintf("Homestay Booking <%s>", mc.from)
+	m.SetHeader("From", fromHeader)
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/plain", body)
@@ -59,10 +61,17 @@ func (mc *MailClient) SendBookingConfirmation(to string, data types.BookingEmail
 	}
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", mc.from)
+	// Sử dụng format "Name <email>" để đảm bảo hiển thị đúng
+	fromHeader := fmt.Sprintf("Homestay Booking <%s>", mc.from)
+	m.SetHeader("From", fromHeader)
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", fmt.Sprintf("Xác nhận đặt phòng tại %s", data.HomestayName))
 	m.SetBody("text/html", buf.String())
+
+	// Debug log
+	fmt.Printf("Gửi email từ: %s\n", fromHeader)
+	fmt.Printf("Gửi email đến: %s\n", to)
+	fmt.Printf("Subject: %s\n", fmt.Sprintf("Xác nhận đặt phòng tại %s", data.HomestayName))
 
 	d := gomail.NewDialer(mc.host, mc.port, mc.username, mc.password)
 
@@ -70,5 +79,18 @@ func (mc *MailClient) SendBookingConfirmation(to string, data types.BookingEmail
 		return fmt.Errorf("gửi email thất bại: %w", err)
 	}
 
+	fmt.Printf("Email đã được gửi thành công!\n")
 	return nil
+}
+
+// TestEmailConnection kiểm tra kết nối email
+func (mc *MailClient) TestEmailConnection() error {
+	fmt.Printf("Testing email connection...\n")
+	fmt.Printf("From: %s\n", mc.from)
+	fmt.Printf("Username: %s\n", mc.username)
+	fmt.Printf("Host: %s\n", mc.host)
+	fmt.Printf("Port: %d\n", mc.port)
+	
+	// Test gửi email đơn giản
+	return mc.SendText(mc.from, "Test Email Connection", "This is a test email to verify the connection is working.")
 }

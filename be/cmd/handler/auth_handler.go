@@ -64,10 +64,9 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// Validate role
-	validRoles := map[string]bool{"admin": true, "host": true, "guest": true}
-	if !validRoles[req.Role] {
-		response.ResponseError(c, response.BadRequest, response.MsgInvalidRole+". Chỉ chấp nhận: admin, host, guest")
+	// Validate role - only allow guest registration
+	if req.Role != "guest" {
+		response.ResponseError(c, response.BadRequest, "Chỉ cho phép đăng ký tài khoản khách thuê")
 		return
 	}
 

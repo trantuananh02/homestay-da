@@ -348,7 +348,7 @@ func (h *HomestayLogic) GetHomestayStats(hostID int) (*types.HomestayStatsRespon
 			}
 			for _, booking := range bookings {
 				switch booking.Status {
-				case "confirmed", "completed":
+				case "completed":
 					totalRevenue += booking.TotalAmount
 				}
 				totalBookings++
@@ -396,7 +396,7 @@ func (h *HomestayLogic) GetHomestayStatsByID(homestayID, hostID int) (*types.Hom
 		}
 		for _, booking := range bookings {
 			switch booking.Status {
-			case "confirmed", "completed":
+			case "completed":
 				totalRevenue += booking.TotalAmount
 			}
 			totalBookings++

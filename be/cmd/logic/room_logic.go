@@ -590,9 +590,19 @@ func (r *RoomLogic) GetRoomStats(homestayID, hostID int) (*types.RoomStatsRespon
 		stats.OccupancyRate = float64(stats.OccupiedRooms) / float64(len(rooms)) * 100
 	}
 
-	// TODO: Tính total revenue từ booking history
-	// Đây là placeholder, cần implement logic tính revenue thực tế
-	stats.TotalRevenue = 0
+	// Tính total revenue từ booking history - chỉ tính khi status = "completed"
+	for _, room := range rooms {
+		bookings, _, err := r.svcCtx.BookingRepo.GetByRoom(r.ctx, room.ID, 1, 1000)
+		if err != nil {
+			logx.Error(err)
+			continue
+		}
+		for _, booking := range bookings {
+			if booking.Status == "completed" {
+				stats.TotalRevenue += booking.TotalAmount
+			}
+		}
+	}
 
 	return stats, nil
 }

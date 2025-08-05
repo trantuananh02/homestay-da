@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff, Mail, Lock, User, Building, Phone } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +20,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "guest" as "guest" | "host" | "admin",
+    role: "guest" as "guest",
     agreeTerms: false,
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -89,13 +89,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       await register(registerData);
       onClose();
 
-      // Auto redirect based on role
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (user.role === "host" || user.role === "admin") {
-        navigate("/management");
-      } else {
-        navigate("/");
-      }
+      // Redirect to home page for guest users
+      navigate("/");
     } catch (error: any) {
       // Error is handled by AuthContext and toastService
       console.error("Register error:", error);
@@ -139,51 +134,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Role Selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Loại tài khoản *
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleInputChange("role", "guest")}
-              className={`p-3 rounded-lg border-2 transition-all ${
-                formData.role === "guest"
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-              disabled={isLoading}
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <User className="h-5 w-5" />
-                <div className="text-left">
-                  <div className="font-medium">Khách thuê</div>
-                  <div className="text-xs opacity-75">Tìm và thuê homestay</div>
-                </div>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleInputChange("role", "host")}
-              className={`p-3 rounded-lg border-2 transition-all ${
-                formData.role === "host"
-                  ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-              disabled={isLoading}
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <Building className="h-5 w-5" />
-                <div className="text-left">
-                  <div className="font-medium">Chủ nhà</div>
-                  <div className="text-xs opacity-75">Cho thuê homestay</div>
-                </div>
-              </div>
-            </button>
-          </div>
-        </div>
-
         {/* Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">

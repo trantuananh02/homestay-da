@@ -21,7 +21,7 @@ type UserCreateRequest struct {
 	Email    string  `json:"email" binding:"required,email"`
 	Phone    *string `json:"phone,omitempty"`
 	Password string  `json:"password" binding:"required,min=6"`
-	Role     string  `json:"role" binding:"required,oneof=admin host guest"`
+	Role     string  `json:"role" binding:"required,eq=guest"`
 }
 
 // UserUpdateRequest request cập nhật user
