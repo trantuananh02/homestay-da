@@ -5,7 +5,8 @@ CREATE TABLE "user" (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) DEFAULT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'host', 'guest')),
+    role VARCHAR(20) NOT NULL CHECK (role IN ('host', 'guest')),
+    status VARCHAR(20) DEFAULT 'inactive' CHECK (status IN ('active', 'inactive')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

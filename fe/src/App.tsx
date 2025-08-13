@@ -1,27 +1,28 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import { AuthProvider } from './contexts/AuthContext';
-import { DataProvider } from './contexts/DataContext';
-import { ConfirmProvider } from './components/ConfirmDialog';
-import ProtectedRoute from './components/Auth/ProtectedRoute';
+import { AuthProvider } from "./contexts/AuthContext";
+import { DataProvider } from "./contexts/DataContext";
+import { ConfirmProvider } from "./components/ConfirmDialog";
+import ProtectedRoute from "./components/Auth/ProtectedRoute";
 
-import Layout from './components/Layout/Layout';
+import Layout from "./components/Layout/Layout";
 
-import Home from './pages/Home';
-import HomestayList from './pages/HomestayList';
-import About from './pages/About';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import BookingHistory from './pages/BookingHistory';
-import Management from './pages/Management';
-import AddHomestay from './pages/AddHomestay';
-import EditHomestay from './pages/EditHomestay';
-import HomestayDetailManagement from './pages/HomestayDetailManagement';
-import RoomDetailPage from './pages/RoomDetailPage';
-import HomestayDetailView from './components/Homestay/HomestayDetailView';
-import GuestNewBooking from './components/Booking/GuestNewBooking';
+import Home from "./pages/Home";
+import HomestayList from "./pages/HomestayList";
+import About from "./pages/About";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import BookingHistory from "./pages/BookingHistory";
+import Management from "./pages/Management";
+import AddHomestay from "./pages/AddHomestay";
+import EditHomestay from "./pages/EditHomestay";
+import HomestayDetailManagement from "./pages/HomestayDetailManagement";
+import RoomDetailPage from "./pages/RoomDetailPage";
+import HomestayDetailView from "./components/Homestay/HomestayDetailView";
+import GuestNewBooking from "./components/Booking/GuestNewBooking";
+import VerifyAccount from "./components/Auth/VerifyAccount";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/homestays" element={<HomestayList />} />
                 <Route path="/homestay/:id" element={<HomestayDetailView />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/verify-account" element={<VerifyAccount />} />
 
                 {/* Auth Routes */}
                 <Route path="/login" element={<Login />} />
@@ -44,17 +46,17 @@ function App() {
                 <Route
                   path="/bookings"
                   element={
-                    <ProtectedRoute requiredRoles={['guest']}>
+                    <ProtectedRoute requiredRoles={["guest"]}>
                       <BookingHistory />
                     </ProtectedRoute>
                   }
                 />
 
-                {/* Protected Routes for Hosts and Admins */}
+                {/* Protected Routes for Hosts */}
                 <Route
                   path="/management"
                   element={
-                    <ProtectedRoute requiredRoles={['host', 'admin']}>
+                    <ProtectedRoute requiredRoles={["host"]}>
                       <Management />
                     </ProtectedRoute>
                   }
@@ -62,7 +64,7 @@ function App() {
                 <Route
                   path="/add-homestay"
                   element={
-                    <ProtectedRoute requiredRoles={['host', 'admin']}>
+                    <ProtectedRoute requiredRoles={["host"]}>
                       <AddHomestay />
                     </ProtectedRoute>
                   }
@@ -70,7 +72,7 @@ function App() {
                 <Route
                   path="/management/homestay/:id"
                   element={
-                    <ProtectedRoute requiredRoles={['host', 'admin']}>
+                    <ProtectedRoute requiredRoles={["host"]}>
                       <HomestayDetailManagement />
                     </ProtectedRoute>
                   }
@@ -78,7 +80,7 @@ function App() {
                 <Route
                   path="/management/homestay/:id/edit"
                   element={
-                    <ProtectedRoute requiredRoles={['host', 'admin']}>
+                    <ProtectedRoute requiredRoles={["host"]}>
                       <EditHomestay />
                     </ProtectedRoute>
                   }
@@ -86,7 +88,7 @@ function App() {
                 {/* <Route
                   path="/management/homestay/:id/rooms/add"
                   element={
-                    <ProtectedRoute requiredRoles={['host', 'admin']}>
+                    <ProtectedRoute requiredRoles={['host']}>
                       <RoomAddPage />
                     </ProtectedRoute>
                   }
@@ -94,7 +96,7 @@ function App() {
                 <Route
                   path="/management/homestay/:homestayId/rooms/:roomId"
                   element={
-                    <ProtectedRoute requiredRoles={['host', 'admin']}>
+                    <ProtectedRoute requiredRoles={["host"]}>
                       <RoomDetailPage />
                     </ProtectedRoute>
                   }
@@ -102,7 +104,7 @@ function App() {
                 <Route
                   path="/guest/homestay/:id/booking"
                   element={
-                    <ProtectedRoute requiredRoles={['guest']}>
+                    <ProtectedRoute requiredRoles={["guest"]}>
                       <GuestNewBooking />
                     </ProtectedRoute>
                   }

@@ -47,7 +47,6 @@ func (mc *MailClient) SendText(to, subject, body string) error {
 	return nil
 }
 
-
 // SendBookingConfirmation gửi email xác nhận đặt phòng với HTML template
 func (mc *MailClient) SendBookingConfirmation(to string, data types.BookingEmailData) error {
 	tmpl, err := template.ParseFiles("cmd/templates/confirm_email.html")
@@ -90,7 +89,36 @@ func (mc *MailClient) TestEmailConnection() error {
 	fmt.Printf("Username: %s\n", mc.username)
 	fmt.Printf("Host: %s\n", mc.host)
 	fmt.Printf("Port: %d\n", mc.port)
-	
+
 	// Test gửi email đơn giản
 	return mc.SendText(mc.from, "Test Email Connection", "This is a test email to verify the connection is working.")
+}
+
+// SendAccountVerification gửi email xác nhận tài khoản
+func (mc *MailClient) SendAccountVerification(to string, data types.VerificationEmailData) error {
+	tmpl, err := template.ParseFiles("cmd/templates/register_confirm.html")
+	if err != nil {
+		return fmt.Errorf("không thể load template email xác nhận tài khoản: %w", err)
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		return fmt.Errorf("render HTML thất bại: %w", err)
+	}
+
+	m := gomail.NewMessage()
+	fromHeader := fmt.Sprintf("Homestay Booking <%s>", mc.from)
+	m.SetHeader("From", fromHeader)
+	m.SetHeader("To", to)
+	m.SetHeader("Subject", "Xác nhận tài khoản Homestay Booking")
+	m.SetBody("text/html", buf.String())
+
+	d := gomail.NewDialer(mc.host, mc.port, mc.username, mc.password)
+
+	if err := d.DialAndSend(m); err != nil {
+		return fmt.Errorf("gửi email xác nhận tài khoản thất bại: %w", err)
+	}
+
+	fmt.Println("Email xác nhận tài khoản đã được gửi thành công!")
+	return nil
 }

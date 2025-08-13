@@ -37,6 +37,10 @@ export interface ProfileResponse {
   };
 }
 
+export interface VerifyEmailResponse {
+  message: string;
+}
+
 // Authentication service
 export const authService = {
   // Login user
@@ -119,6 +123,23 @@ export const authService = {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
       localStorage.removeItem("tokenExpiry");
+    }
+  },
+
+  // Verify email
+  async verifyEmail(token: string): Promise<VerifyEmailResponse> {
+    try {
+      const response = await api.post("/api/auth/verify", { token });
+      toastService.showApiSuccess(response);
+
+      return response.data;
+    } catch (error: any) {
+      toastService.showApiError(error);
+      throw new Error(
+        error.response?.data?.result?.message ||
+          error.response?.data?.message ||
+          "Xác thực email thất bại"
+      );
     }
   },
 

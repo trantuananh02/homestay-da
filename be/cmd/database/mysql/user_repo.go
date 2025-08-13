@@ -30,13 +30,13 @@ func (r *userRepository) Create(ctx context.Context, req *model.UserCreateReques
 	}
 
 	query := `
-		INSERT INTO "user" (name, email, phone, password, role)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO "user" (name, email, phone, password, role, status)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, name, phone, email, password, role, created_at
 	`
 
 	var user model.User
-	err = r.db.GetContext(ctx, &user, query, req.Name, req.Email, req.Phone, string(hashedPassword), req.Role)
+	err = r.db.GetContext(ctx, &user, query, req.Name, req.Email, req.Phone, string(hashedPassword), req.Role, req.Status)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
@@ -67,7 +67,7 @@ func (r *userRepository) GetByID(ctx context.Context, id int) (*model.User, erro
 // GetByEmail lấy user theo email
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*model.User, error) {
 	query := `
-		SELECT id, name, phone, email, password, role, created_at
+		SELECT id, name, phone, email, password, role, status, created_at
 		FROM "user"
 		WHERE email = $1
 	`
@@ -148,7 +148,7 @@ func (r *userRepository) Update(ctx context.Context, id int, req *model.UserUpda
 // Delete xóa user
 func (r *userRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM "user" WHERE id = $1`
-	
+
 	result, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
@@ -250,4 +250,13 @@ func (r *userRepository) Search(ctx context.Context, name, email, role string, p
 	}
 
 	return users, total, nil
-} 
+}
+
+func (r *userRepository) ActiveUser(ctx context.Context, id int) error {
+	query := `UPDATE "user" SET status = 'active' WHERE id = $1`
+	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("failed to activate user: %w", err)
+	}
+	return nil
+}

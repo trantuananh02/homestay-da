@@ -29,6 +29,7 @@ type UserInfo struct {
 	Phone *string `json:"phone,omitempty"`
 	Email string  `json:"email"`
 	Role  string  `json:"role"`
+	Status string  `json:"status"` // Trạng thái người dùng (active, inactive)
 }
 
 // ProfileResponse response profile
@@ -41,4 +42,9 @@ type UpdateProfileRequest struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	Phone string `json:"phone,omitempty"`
+}
+
+
+type VerifyEmailRequest struct {
+	Token string `json:"token"`
 }

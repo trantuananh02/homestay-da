@@ -112,7 +112,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	})
 }
 
-	// UpdateProfile cập nhật thông tin người dùng
+// UpdateProfile cập nhật thông tin người dùng
 func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 	var req types.UpdateProfileRequest
 
@@ -139,4 +139,24 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 
 	// Trả về response thành công
 	response.ResponseSuccess(c, gin.H{"message": "Cập nhật thông tin thành công"})
+}
+
+// VerifyEmail xác nhận email người dùng
+func (h *AuthHandler) VerifyEmail(c *gin.Context) {
+	var req types.VerifyEmailRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ResponseError(c, response.BadRequest, response.MsgInvalidData+": "+err.Error())
+		return
+	}
+
+	authLogic := logic.NewAuthLogic(h.svc)
+	if err := authLogic.VerifyEmail(c.Request.Context(), req.Token); err != nil {
+		log.Print(err)
+		response.ResponseError(c, response.BadRequest, "Xác nhận email không thành công: "+err.Error())
+		return
+	}
+
+	// Trả về response thành công
+	response.ResponseSuccess(c, gin.H{"message": "Email đã được xác nhận thành công"})
 }

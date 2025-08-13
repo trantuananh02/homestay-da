@@ -1,16 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import {
-  Home,
-  User,
-  Menu,
-  X,
-  Calendar,
-  Building,
-  LogOut
-} from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import UserUpdateModal from '../Auth/UserUpdateModal';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Home, User, Menu, X, Calendar, Building, LogOut } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import UserUpdateModal from "../Auth/UserUpdateModal";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +12,6 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
-
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = async () => {
@@ -29,30 +20,31 @@ const Header: React.FC = () => {
       setIsDropdownOpen(false);
       setIsMenuOpen(false);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
   const getRoleDisplayName = (role: string) => {
     switch (role) {
-      case 'host':
-        return 'Chủ nhà';
-      case 'admin':
-        return 'Quản trị viên';
-      case 'guest':
+      case "host":
+        return "Chủ nhà";
+      case "guest":
       default:
-        return 'Khách hàng';
+        return "Khách hàng";
     }
   };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -61,51 +53,68 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
             <Home className="h-8 w-8 text-primary-600" />
-            <span className="text-xl font-bold text-gray-900">Mây Lang Thang</span>
+            <span className="text-xl font-bold text-gray-900">
+              Mây Lang Thang
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link
               to="/"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600'
-                }`}
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive("/")
+                  ? "text-primary-600 bg-primary-50"
+                  : "text-gray-700 hover:text-primary-600"
+              }`}
             >
               Trang chủ
             </Link>
             <Link
               to="/homestays"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/homestays') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600'
-                }`}
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive("/homestays")
+                  ? "text-primary-600 bg-primary-50"
+                  : "text-gray-700 hover:text-primary-600"
+              }`}
             >
               Homestay
             </Link>
             <Link
               to="/about"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/about') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600'
-                }`}
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive("/about")
+                  ? "text-primary-600 bg-primary-50"
+                  : "text-gray-700 hover:text-primary-600"
+              }`}
             >
               Giới thiệu
             </Link>
 
             {isAuthenticated && user ? (
               <div className="flex items-center space-x-6">
-                {(user.role === 'host' || user.role === 'admin') && (
+                {user.role === "host" && (
                   <Link
                     to="/management"
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1 ${isActive('/management') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600'
-                      }`}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1 ${
+                      isActive("/management")
+                        ? "text-primary-600 bg-primary-50"
+                        : "text-gray-700 hover:text-primary-600"
+                    }`}
                   >
                     <Building className="h-4 w-4" />
                     <span>Quản lý</span>
                   </Link>
                 )}
 
-                {user.role === 'guest' && (
+                {user.role === "guest" && (
                   <Link
                     to="/bookings"
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1 ${isActive('/bookings') ? 'text-primary-600 bg-primary-50' : 'text-gray-700 hover:text-primary-600'
-                      }`}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1 ${
+                      isActive("/bookings")
+                        ? "text-primary-600 bg-primary-50"
+                        : "text-gray-700 hover:text-primary-600"
+                    }`}
                   >
                     <Calendar className="h-4 w-4" />
                     <span>Đặt phòng của tôi</span>
@@ -122,8 +131,12 @@ const Header: React.FC = () => {
                       <User className="h-4 w-4 text-primary-600" />
                     </div>
                     <div className="text-sm text-left">
-                      <div className="text-gray-700 font-medium">{user.name}</div>
-                      <div className="text-gray-500 text-xs">{getRoleDisplayName(user.role)}</div>
+                      <div className="text-gray-700 font-medium">
+                        {user.name}
+                      </div>
+                      <div className="text-gray-500 text-xs">
+                        {getRoleDisplayName(user.role)}
+                      </div>
                     </div>
                   </button>
 
@@ -167,8 +180,15 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Mobile menu toggle */}
-          <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          <button
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
 
@@ -199,7 +219,7 @@ const Header: React.FC = () => {
               </Link>
               {isAuthenticated && user ? (
                 <>
-                  {(user.role === 'host' || user.role === 'admin') && (
+                  {user.role === "host" && (
                     <Link
                       to="/management"
                       onClick={() => setIsMenuOpen(false)}
@@ -208,7 +228,7 @@ const Header: React.FC = () => {
                       Quản lý
                     </Link>
                   )}
-                  {user.role === 'guest' && (
+                  {user.role === "guest" && (
                     <Link
                       to="/bookings"
                       onClick={() => setIsMenuOpen(false)}
@@ -260,7 +280,6 @@ const Header: React.FC = () => {
           userId={user?.id || 0} // Assuming user.id is available
         />
       )}
-
     </header>
   );
 };

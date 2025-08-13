@@ -1,6 +1,6 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
   requiredRole?: string; // For backward compatibility
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requiredRoles = [], 
-  requiredRole 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRoles = [],
+  requiredRole,
 }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -31,15 +31,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Check role requirements
-  const roles = requiredRoles.length > 0 ? requiredRoles : (requiredRole ? [requiredRole] : []);
-  
+  const roles =
+    requiredRoles.length > 0
+      ? requiredRoles
+      : requiredRole
+      ? [requiredRole]
+      : [];
+
   if (roles.length > 0 && !roles.includes(user.role)) {
     // Redirect to appropriate page based on user role
-    if (user.role === 'host' || user.role === 'admin') {
+    if (user.role === "host") {
       return <Navigate to="/management" replace />;
-    } else {
-      return <Navigate to="/" replace />;
     }
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

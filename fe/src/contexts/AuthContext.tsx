@@ -84,8 +84,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null);
       
       const response = await authService.register(userData);
-      authService.saveAuthData(response);
-      setUser(response.user);
+      // authService.saveAuthData(response);
+      // setUser(response.user);
+      console.log("Register response:", response);
     } catch (error: any) {
       const errorMessage = error.message || 'Đăng ký thất bại';
       setError(errorMessage);

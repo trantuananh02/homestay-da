@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Phone } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import VerifyEmailPopup from "../components/Auth/VerifyEmailPopup";
 
 const Register: React.FC = () => {
   const { register, error, clearError, isLoading } = useAuth();
@@ -18,6 +19,7 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [localErrors, setLocalErrors] = useState<any>({});
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
   // Clear error when component mounts
   useEffect(() => {
@@ -88,8 +90,9 @@ const Register: React.FC = () => {
 
       await register(registerData);
 
-      // Redirect to home page for guest users
-      navigate("/");
+      // hien thi popup thong bao
+      setShowConfirmPopup(true);
+
     } catch (error: any) {
       // Error is handled by AuthContext and toastService
       console.error("Register error:", error);
@@ -356,6 +359,14 @@ const Register: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {showConfirmPopup && (
+        <VerifyEmailPopup
+          email={formData.email}
+          onClose={() => setShowConfirmPopup(false)}
+          onResend={() => console.log("Resend email")}
+        />
+      )}
     </div>
   );
 };

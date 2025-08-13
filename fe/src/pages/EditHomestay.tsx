@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, MapPin, Building } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { homestayService } from '../services/homestayService';
-import { Homestay, UpdateHomestayRequest } from '../types';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Save, MapPin, Building } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { homestayService } from "../services/homestayService";
+import { Homestay, UpdateHomestayRequest } from "../types";
 
 const EditHomestay: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [homestay, setHomestay] = useState<Homestay | null>(null);
   const [formData, setFormData] = useState<UpdateHomestayRequest>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const homestayId = parseInt(id || '0');
+  const homestayId = parseInt(id || "0");
 
   const loadHomestay = async () => {
     if (!homestayId) return;
-    
+
     try {
       setLoading(true);
       const response = await homestayService.getHomestayById(homestayId);
@@ -34,25 +34,28 @@ const EditHomestay: React.FC = () => {
         ward: homestayData.ward,
         latitude: homestayData.latitude,
         longitude: homestayData.longitude,
-        status: homestayData.status
+        status: homestayData.status,
       });
     } catch (error) {
-      console.error('Error loading homestay:', error);
+      console.error("Error loading homestay:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user?.role === 'host' || user?.role === 'admin') {
+    if (user?.role === "host") {
       loadHomestay();
     }
   }, [user, homestayId]);
 
-  const handleInputChange = (field: keyof UpdateHomestayRequest, value: any) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    field: keyof UpdateHomestayRequest,
+    value: any
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -62,15 +65,21 @@ const EditHomestay: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.description || !formData.address || 
-        !formData.city || !formData.district || !formData.ward) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+
+    if (
+      !formData.name ||
+      !formData.description ||
+      !formData.address ||
+      !formData.city ||
+      !formData.district ||
+      !formData.ward
+    ) {
+      alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
       return;
     }
 
     if (formData.latitude === 0 || formData.longitude === 0) {
-      alert('Vui lòng nhập tọa độ địa lý!');
+      alert("Vui lòng nhập tọa độ địa lý!");
       return;
     }
 
@@ -79,7 +88,7 @@ const EditHomestay: React.FC = () => {
       await homestayService.updateHomestay(homestayId, formData);
       navigate(`/management/homestay/${homestayId}`);
     } catch (error) {
-      console.error('Error updating homestay:', error);
+      console.error("Error updating homestay:", error);
     } finally {
       setSaving(false);
     }
@@ -102,7 +111,7 @@ const EditHomestay: React.FC = () => {
         <div className="text-center">
           <p className="text-gray-600">Không tìm thấy homestay</p>
           <button
-            onClick={() => navigate('/management')}
+            onClick={() => navigate("/management")}
             className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
           >
             Quay lại
@@ -124,7 +133,9 @@ const EditHomestay: React.FC = () => {
         </button>
 
         <div className="bg-white rounded-xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Chỉnh sửa homestay</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+            Chỉnh sửa homestay
+          </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
@@ -133,7 +144,7 @@ const EditHomestay: React.FC = () => {
                 <Building className="h-5 w-5 mr-2" />
                 Thông tin cơ bản
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -141,8 +152,8 @@ const EditHomestay: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.name || ''}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    value={formData.name || ""}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Nhập tên homestay"
                     required
@@ -154,8 +165,10 @@ const EditHomestay: React.FC = () => {
                     Trạng thái
                   </label>
                   <select
-                    value={formData.status || 'active'}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    value={formData.status || "active"}
+                    onChange={(e) =>
+                      handleInputChange("status", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   >
                     <option value="active">Hoạt động</option>
@@ -169,8 +182,10 @@ const EditHomestay: React.FC = () => {
                     Mô tả *
                   </label>
                   <textarea
-                    value={formData.description || ''}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    value={formData.description || ""}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Mô tả chi tiết về homestay"
                     rows={4}
@@ -186,7 +201,7 @@ const EditHomestay: React.FC = () => {
                 <MapPin className="h-5 w-5 mr-2" />
                 Thông tin địa chỉ
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -194,8 +209,10 @@ const EditHomestay: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.address || ''}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    value={formData.address || ""}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Số nhà, tên đường"
                     required
@@ -208,8 +225,8 @@ const EditHomestay: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.ward || ''}
-                    onChange={(e) => handleInputChange('ward', e.target.value)}
+                    value={formData.ward || ""}
+                    onChange={(e) => handleInputChange("ward", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Phường/Xã"
                     required
@@ -222,8 +239,10 @@ const EditHomestay: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.district || ''}
-                    onChange={(e) => handleInputChange('district', e.target.value)}
+                    value={formData.district || ""}
+                    onChange={(e) =>
+                      handleInputChange("district", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Quận/Huyện"
                     required
@@ -236,8 +255,8 @@ const EditHomestay: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.city || ''}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    value={formData.city || ""}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Tỉnh/Thành phố"
                     required
@@ -248,8 +267,10 @@ const EditHomestay: React.FC = () => {
 
             {/* Coordinates */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Tọa độ địa lý</h2>
-              
+              <h2 className="text-xl font-semibold text-gray-900">
+                Tọa độ địa lý
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -259,7 +280,12 @@ const EditHomestay: React.FC = () => {
                     type="number"
                     step="any"
                     value={formData.latitude || 0}
-                    onChange={(e) => handleInputChange('latitude', parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "latitude",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="10.762622"
                     required
@@ -277,7 +303,12 @@ const EditHomestay: React.FC = () => {
                     type="number"
                     step="any"
                     value={formData.longitude || 0}
-                    onChange={(e) => handleInputChange('longitude', parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "longitude",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="106.660172"
                     required
@@ -289,12 +320,26 @@ const EditHomestay: React.FC = () => {
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="text-sm font-medium text-blue-900 mb-2">Hướng dẫn lấy tọa độ:</h3>
+                <h3 className="text-sm font-medium text-blue-900 mb-2">
+                  Hướng dẫn lấy tọa độ:
+                </h3>
                 <ol className="text-sm text-blue-800 space-y-1">
-                  <li>1. Truy cập <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="underline">Google Maps</a></li>
+                  <li>
+                    1. Truy cập{" "}
+                    <a
+                      href="https://maps.google.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      Google Maps
+                    </a>
+                  </li>
                   <li>2. Tìm địa chỉ homestay của bạn</li>
                   <li>3. Click chuột phải vào vị trí chính xác</li>
-                  <li>4. Copy tọa độ hiển thị (ví dụ: 10.762622, 106.660172)</li>
+                  <li>
+                    4. Copy tọa độ hiển thị (ví dụ: 10.762622, 106.660172)
+                  </li>
                   <li>5. Nhập vào form bên trên</li>
                 </ol>
               </div>
@@ -334,4 +379,4 @@ const EditHomestay: React.FC = () => {
   );
 };
 
-export default EditHomestay; 
+export default EditHomestay;

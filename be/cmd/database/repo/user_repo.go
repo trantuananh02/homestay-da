@@ -27,4 +27,7 @@ type UserRepository interface {
 	
 	// Search tìm kiếm user
 	Search(ctx context.Context, name, email, role string, page, pageSize int) ([]*model.User, int, error)
-} 
+
+	// ActiveUser kích hoạt user
+	ActiveUser(ctx context.Context, id int) error
+}

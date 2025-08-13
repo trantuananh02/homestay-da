@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"fmt"
 	"homestay-be/cmd/database/model"
 	"homestay-be/cmd/svc"
 	"homestay-be/cmd/types"
@@ -31,6 +32,13 @@ func (l *AuthLogic) Login(ctx context.Context, req *types.LoginRequest) (*types.
 	if err != nil {
 		logx.Error(err)
 		return nil, errors.New("email hoặc mật khẩu không đúng")
+	}
+
+	logx.Info("User found:", user)
+
+	if user.Status != "active" {
+		logx.Error("user is not active")
+		return nil, errors.New("tài khoản chưa được kích hoạt")
 	}
 
 	// Kiểm tra password
@@ -80,6 +88,7 @@ func (l *AuthLogic) Register(ctx context.Context, req *types.RegisterRequest) (*
 		Phone:    req.Phone,
 		Password: req.Password,
 		Role:     req.Role,
+		Status:   "inactive", // Mặc định trạng thái là inactive
 	}
 
 	user, err := l.svc.UserRepo.Create(ctx, userReq)
@@ -89,27 +98,43 @@ func (l *AuthLogic) Register(ctx context.Context, req *types.RegisterRequest) (*
 	}
 
 	// Tạo JWT token
-	accessToken, err := l.generateJWT(user.ID, user.Email, user.Role)
+	// 2. Tạo token xác nhận
+	token, err := GenerateVerificationToken(int64(user.ID), req.Email)
 	if err != nil {
-		logx.Error(err)
-		return nil, errors.New("không thể tạo token")
+		logx.Error("Failed to generate verification token:", err)
+		return nil, errors.New("không thể tạo token xác nhận")
+	}
+
+	verificationLink := fmt.Sprintf("http://localhost:5173/verify-account?token=%s", token)
+
+	// 3. Gửi email xác nhận
+	emailData := types.VerificationEmailData{
+		Name:             req.Name,
+		VerificationLink: verificationLink,
+	}
+
+	err = l.svc.MailClient.SendAccountVerification(user.Email, emailData)
+	if err != nil {
+		logx.Error("Failed to send verification email:", err)
+		return nil, errors.New("không thể gửi email xác nhận")
 	}
 
 	// Tạo response
 	response := &types.LoginResponse{
 		User: types.UserInfo{
-			ID:    user.ID,
-			Name:  user.Name,
-			Phone: user.Phone,
-			Email: user.Email,
-			Role:  user.Role,
+			ID:     user.ID,
+			Name:   user.Name,
+			Phone:  user.Phone,
+			Email:  user.Email,
+			Role:   user.Role,
+			Status: user.Status,
 		},
-		AccessToken: accessToken,
-		ExpiresIn:   30 * 24 * 60 * 60, // 30 ngày tính bằng giây
 	}
 
 	return response, nil
 }
+
+// api kich hoat tai khoan
 
 // GetProfile lấy thông tin profile
 func (l *AuthLogic) GetProfile(ctx context.Context, userID int) (*types.ProfileResponse, error) {
@@ -238,4 +263,52 @@ func (l *AuthLogic) UpdateProfile(ctx context.Context, userID int, req *types.Up
 	}
 
 	return response, nil
+}
+
+func GenerateVerificationToken(userID int64, email string) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userID,
+		"email":   email,
+		"exp":     time.Now().Add(24 * time.Hour).Unix(), // Token hết hạn sau 24h
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte("super-secret-key"))
+}
+
+// Api kích hoạt tài khoản
+func (l *AuthLogic) VerifyEmail(ctx context.Context, tokenString string) error {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("phương thức ký không hợp lệ")
+		}
+		return []byte("super-secret-key"), nil // Thay bằng secret key thực tế
+	})
+	if err != nil || !token.Valid {
+		logx.Error("Token không hợp lệ:", err)
+		return errors.New("token không hợp lệ hoặc đã hết hạn")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		logx.Error("Không thể đọc claims:", err)
+		return errors.New("không thể đọc claims")
+	}
+
+	userID := int64(claims["user_id"].(float64))
+
+	// Lấy user theo ID
+	user, err := l.svc.UserRepo.GetByID(ctx, int(userID))
+	if err != nil {
+		logx.Error("Lỗi khi lấy thông tin người dùng:", err)
+		return errors.New("không tìm thấy người dùng")
+	}
+
+	// Kích hoạt tài khoản
+	if err := l.svc.UserRepo.ActiveUser(ctx, user.ID); err != nil {
+		logx.Error("Lỗi khi cập nhật thông tin người dùng:", err)
+		return errors.New("không thể kích hoạt tài khoản")
+	}
+
+	return nil
 }

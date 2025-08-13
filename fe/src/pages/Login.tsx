@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login: React.FC = () => {
   const { login, error, clearError, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [localErrors, setLocalErrors] = useState<any>({});
@@ -26,12 +26,12 @@ const Login: React.FC = () => {
       return;
     }
     // If user is already logged in, redirect based on role
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (user.id) {
-      if (user.role === 'host' || user.role === 'admin') {
-        navigate('/management');
+      if (user.role === "host") {
+        navigate("/management");
       } else {
-        navigate('/');
+        navigate("/");
       }
     }
   }, [navigate, location.state]);
@@ -40,15 +40,15 @@ const Login: React.FC = () => {
     const newErrors: any = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email là bắt buộc';
+      newErrors.email = "Email là bắt buộc";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = "Email không hợp lệ";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Mật khẩu là bắt buộc';
+      newErrors.password = "Mật khẩu là bắt buộc";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
     }
 
     setLocalErrors(newErrors);
@@ -57,31 +57,31 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
       await login(formData);
-      
+
       // Redirect based on role or return to previous page
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (location.state?.from) {
         navigate(location.state.from);
-      } else if (user.role === 'host' || user.role === 'admin') {
-        navigate('/management');
+      } else if (user.role === "host") {
+        navigate("/management");
       } else {
-        navigate('/');
+        navigate("/");
       }
     } catch (error: any) {
       // Error is handled by AuthContext and toastService
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     }
   };
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (localErrors[field]) {
-      setLocalErrors((prev: any) => ({ ...prev, [field]: '' }));
+      setLocalErrors((prev: any) => ({ ...prev, [field]: "" }));
     }
     // Clear auth error when user starts typing
     if (error) {
@@ -93,12 +93,15 @@ const Login: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <Link to="/" className="flex items-center space-x-2 text-primary-600 hover:text-primary-700">
+          <Link
+            to="/"
+            className="flex items-center space-x-2 text-primary-600 hover:text-primary-700"
+          >
             <ArrowLeft className="h-5 w-5" />
             <span className="text-sm font-medium">Về trang chủ</span>
           </Link>
         </div>
-        
+
         <div className="mt-6 text-center">
           <h2 className="text-3xl font-bold text-gray-900">Đăng nhập</h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -134,9 +137,9 @@ const Login: React.FC = () => {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                    localErrors.email ? 'border-red-300' : 'border-gray-300'
+                    localErrors.email ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Nhập email của bạn"
                   disabled={isLoading}
@@ -155,11 +158,13 @@ const Login: React.FC = () => {
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                    localErrors.password ? 'border-red-300' : 'border-gray-300'
+                    localErrors.password ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Nhập mật khẩu"
                   disabled={isLoading}
@@ -170,11 +175,17 @@ const Login: React.FC = () => {
                   className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                   disabled={isLoading}
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
               {localErrors.password && (
-                <p className="text-red-600 text-sm mt-1">{localErrors.password}</p>
+                <p className="text-red-600 text-sm mt-1">
+                  {localErrors.password}
+                </p>
               )}
             </div>
 
@@ -186,7 +197,9 @@ const Login: React.FC = () => {
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   disabled={isLoading}
                 />
-                <span className="ml-2 text-sm text-gray-600">Ghi nhớ đăng nhập</span>
+                <span className="ml-2 text-sm text-gray-600">
+                  Ghi nhớ đăng nhập
+                </span>
               </label>
               <button
                 type="button"
@@ -201,16 +214,18 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors bg-primary-600 hover:bg-primary-700 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors bg-primary-600 hover:bg-primary-700 ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
           </form>
 
           {/* Switch to Register */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Chưa có tài khoản?{' '}
+              Chưa có tài khoản?{" "}
               <Link
                 to="/register"
                 className="text-primary-600 hover:text-primary-700 font-medium"
@@ -225,4 +240,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default Login;

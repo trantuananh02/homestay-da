@@ -32,6 +32,7 @@ func RegisterHandlers(router *gin.Engine, serverCtx *svc.ServiceContext) {
 		{
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
+			auth.POST("/verify", authHandler.VerifyEmail)
 		}
 
 		// Public routes
@@ -53,10 +54,10 @@ func RegisterHandlers(router *gin.Engine, serverCtx *svc.ServiceContext) {
 			protected.POST("/auth/logout", authHandler.Logout)
 		}
 
-		// Host routes (cần role host hoặc admin)
+        // Host routes (chỉ role host)
 		host := api.Group("/host")
 		host.Use(middleware.AuthMiddleware(serverCtx))
-		host.Use(middleware.RoleMiddleware("host", "admin"))
+        host.Use(middleware.RoleMiddleware("host"))
 		{
 			// Init context for logic layers
 			ctx := context.Background()
@@ -103,7 +104,7 @@ func RegisterHandlers(router *gin.Engine, serverCtx *svc.ServiceContext) {
 			host.GET("/homestays/:id/bookings", bookingHandler.GetBookingsByHomestayID)
 			host.PUT("/booking/:id/status", bookingHandler.UpdateStatusBooking)
 
-			// Payment management
+            // Payment management
 			host.GET("/payments", bookingHandler.GetPayments)
 		}
 
