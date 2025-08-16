@@ -1,13 +1,14 @@
-import React from 'react';
-import { Room } from '../types';
+import React from "react";
+import { Room } from "../types";
 
 interface RoomListProps {
   rooms: Room[];
   onViewRoom?: (roomId: number) => void;
+  onBookRoom?: (roomId: number) => void;
 }
 
-const priceTypeLabel = (type: Room['priceType']) =>
-  type === 'per_night' ? 'phòng/đêm' : 'người/đêm';
+const priceTypeLabel = (type: Room["priceType"]) =>
+  type === "per_night" ? "phòng/đêm" : "người/đêm";
 
 // const statusLabel = (status: Room['status']) => {
 //   switch (status) {
@@ -22,9 +23,15 @@ const priceTypeLabel = (type: Room['priceType']) =>
 //   }
 // };
 
-const RoomList: React.FC<RoomListProps> = ({ rooms, onViewRoom}) => {
+const RoomList: React.FC<RoomListProps> = ({
+  rooms,
+  onViewRoom,
+  onBookRoom,
+}) => {
   if (!rooms || rooms.length === 0) {
-    return <div className="text-center text-gray-500 py-8">Chưa có phòng nào.</div>;
+    return (
+      <div className="text-center text-gray-500 py-8">Chưa có phòng nào.</div>
+    );
   }
 
   return (
@@ -53,36 +60,60 @@ const RoomList: React.FC<RoomListProps> = ({ rooms, onViewRoom}) => {
           <div className="md:w-2/4 w-full p-4 flex flex-col justify-center">
             <h3 className="text-lg font-semibold mb-1">{room.name}</h3>
             <div className="flex flex-wrap gap-2 mb-2 text-xs text-gray-600">
-              <span className="px-2 py-1 bg-gray-100 rounded">Loại: {room.type}</span>
-              <span className="px-2 py-1 bg-gray-100 rounded">Sức chứa: {room.capacity} người</span>
-              {room.area && <span className="px-2 py-1 bg-gray-100 rounded">Diện tích: {room.area} m²</span>}
-              <span className="px-2 py-1 bg-gray-100 rounded">Giá: {room.price?.toLocaleString('vi-VN')} đ/{priceTypeLabel(room.priceType)}</span>
+              <span className="px-2 py-1 bg-gray-100 rounded">
+                Loại: {room.type}
+              </span>
+              <span className="px-2 py-1 bg-gray-100 rounded">
+                Sức chứa: {room.capacity} người
+              </span>
+              {room.area && (
+                <span className="px-2 py-1 bg-gray-100 rounded">
+                  Diện tích: {room.area} m²
+                </span>
+              )}
+              <span className="px-2 py-1 bg-gray-100 rounded">
+                Giá: {room.price?.toLocaleString("vi-VN")} đ/
+                {priceTypeLabel(room.priceType)}
+              </span>
               {/* <span className="px-2 py-1 bg-gray-100 rounded">Trạng thái: {statusLabel(room.status)}</span> */}
             </div>
             {room.description && (
-              <div className="text-gray-600 text-sm mb-2 line-clamp-2">{room.description}</div>
+              <div className="text-gray-600 text-sm mb-2 line-clamp-2">
+                {room.description}
+              </div>
             )}
             {room.amenities && room.amenities.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-1">
                 {room.amenities.slice(0, 5).map((item, idx) => (
-                  <span key={idx} className="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
+                  <span
+                    key={idx}
+                    className="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs"
+                  >
                     {item}
                   </span>
                 ))}
                 {room.amenities.length > 5 && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full text-xs">+{room.amenities.length - 5} tiện ích</span>
+                  <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full text-xs">
+                    +{room.amenities.length - 5} tiện ích
+                  </span>
                 )}
               </div>
             )}
           </div>
 
-          {/* Cột 3: Nút đặt ngay */}
+          {/* Cột 3: Hành động */}
           <div className="md:w-1/4 w-full flex flex-col items-center justify-center p-4 border-t md:border-t-0 md:border-l border-gray-100">
             <button
               className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition mb-2"
               onClick={() => onViewRoom && onViewRoom(room.id)}
             >
               Xem chi tiết
+            </button>
+            <button
+              className="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition"
+              onClick={() => onBookRoom && onBookRoom(room.id)}
+            >
+              Đặt phòng
             </button>
           </div>
         </div>

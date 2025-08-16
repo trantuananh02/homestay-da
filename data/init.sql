@@ -87,7 +87,6 @@ CREATE TABLE payment (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tạo bảng review
 CREATE TABLE review (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,

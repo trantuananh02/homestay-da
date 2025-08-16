@@ -8,16 +8,16 @@ import {
   Save,
   ArrowLeft,
 } from "lucide-react";
-import { Booking, Room } from "../../types";
-import { useNavigate, useParams } from "react-router-dom";
+import { Booking } from "../../types";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { homestayService } from "../../services/homestayService";
 import { bookingService } from "../../services/bookingService";
 
 const GuestNewBooking = () => {
   const { id } = useParams<{ id: string }>();
-  const [rooms, setRooms] = useState<Room[]>([]); // Replace with actual rooms data
-  const [existingBookings, setExistingBookings] = useState<Booking[]>([]); // Replace with actual bookings data
+  const location = useLocation();
   const navigate = useNavigate();
+  const [existingBookings, setExistingBookings] = useState<Booking[]>([]);
 
   // get user info from localStorage
   const userInfo = localStorage.getItem("user");
@@ -29,16 +29,40 @@ const GuestNewBooking = () => {
         page: 1,
         pageSize: 100, // Lấy tất cả phòng
       });
-      setRooms(roomList.rooms || []);
+      const fetchedRooms = roomList.rooms || [];
 
-      const bookingList = await homestayService.getGuestBookingsByHomestayId(
-        Number(id)
-      );
+      // Fetch existing bookings to check availability
+      try {
+        const bookingList = await homestayService.getGuestBookingsByHomestayId(
+          Number(id)
+        );
+        setExistingBookings(bookingList.bookings || []);
+      } catch (err) {
+        // ignore; toast already handled in service
+      }
 
-      setExistingBookings(bookingList.bookings || []);
+      // Auto-select room if roomId is provided in query string
+      const searchParams = new URLSearchParams(location.search);
+      const selectedRoomIdParam = searchParams.get("roomId");
+      if (selectedRoomIdParam) {
+        const targetRoom = fetchedRooms.find(
+          (r) => r.id === Number(selectedRoomIdParam)
+        );
+        if (targetRoom) {
+          setSelectedRooms([
+            {
+              id: targetRoom.id,
+              name: targetRoom.name,
+              type: targetRoom.type,
+              pricePerNight: targetRoom.price,
+              capacity: targetRoom.capacity,
+            },
+          ]);
+        }
+      }
     };
     fetchData();
-  }, [id]);
+  }, [id, location.search]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -49,8 +73,6 @@ const GuestNewBooking = () => {
     return `${day}/${month}/${year}`;
   };
 
-  const [showRoomSuggestions, setShowRoomSuggestions] = useState(false);
-  const [roomSearchQuery, setRoomSearchQuery] = useState("");
   const [selectedRooms, setSelectedRooms] = useState<
     {
       id: number;
@@ -96,72 +118,39 @@ const GuestNewBooking = () => {
     );
   };
 
-  const isRoomAvailable = (room: Room) => {
-    // Kiểm tra phòng có sẵn cơ bản
-    if (room?.status !== "available") return false;
-
-    // Nếu chưa chọn ngày thì hiển thị tất cả phòng có sẵn
-    if (!newBooking.checkIn || !newBooking.checkOut) return true;
-
-    // Kiểm tra xung đột với các booking hiện tại
+  // Check availability for selected rooms against existing bookings
+  const getUnavailableRooms = (): number[] => {
+    if (!newBooking.checkIn || !newBooking.checkOut) return [];
     const checkIn = new Date(newBooking.checkIn);
     const checkOut = new Date(newBooking.checkOut);
 
-    return !existingBookings.some((booking) => {
-      // Bỏ qua booking đã hủy
-      if (booking.status === "cancelled") return false;
-
-      // Kiểm tra xem phòng có trong booking này không
-      const hasRoom = booking.rooms.some(
-        (bookingRoom) => bookingRoom.id === room.id
-      );
-      if (!hasRoom) return false;
-
-      // Kiểm tra xung đột thời gian
-      const bookingCheckIn = new Date(booking.checkIn);
-      const bookingCheckOut = new Date(booking.checkOut);
-
-      // Xung đột nếu:
-      // - Ngày nhận mới nằm trong khoảng booking cũ
-      // - Ngày trả mới nằm trong khoảng booking cũ
-      // - Booking mới bao trùm booking cũ
+    const isOverlap = (aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) => {
       return (
-        (checkIn >= bookingCheckIn && checkIn < bookingCheckOut) ||
-        (checkOut > bookingCheckIn && checkOut <= bookingCheckOut) ||
-        (checkIn <= bookingCheckIn && checkOut >= bookingCheckOut)
+        (aStart >= bStart && aStart < bEnd) ||
+        (aEnd > bStart && aEnd <= bEnd) ||
+        (aStart <= bStart && aEnd >= bEnd)
       );
-    });
-  };
+    };
 
-  const filteredRooms = rooms.filter(
-    (room) =>
-      room.name.toLowerCase().includes(roomSearchQuery.toLowerCase()) &&
-      isRoomAvailable(room) &&
-      !selectedRooms.some((selected) => selected.id === room.id)
-  );
+    const selectedIds = selectedRooms.map((r) => r.id);
 
-  const handleAddRoom = (room: Room) => {
-    setSelectedRooms((prev) => [
-      ...prev,
-      {
-        id: room.id,
-        name: room.name,
-        type: room.type,
-        pricePerNight: room.price,
-        capacity: room.capacity,
-      },
-    ]);
-    setRoomSearchQuery("");
-    setShowRoomSuggestions(false);
+    const unavailable = new Set<number>();
+    for (const booking of existingBookings) {
+      if (booking.status === "cancelled") continue;
+      const bStart = new Date(booking.checkIn);
+      const bEnd = new Date(booking.checkOut);
+      if (!isOverlap(checkIn, checkOut, bStart, bEnd)) continue;
+      for (const r of booking.rooms) {
+        if (selectedIds.includes(r.id)) {
+          unavailable.add(r.id);
+        }
+      }
+    }
+    return Array.from(unavailable);
   };
 
   const handleRemoveRoom = (roomId: number) => {
     setSelectedRooms((prev) => prev.filter((room) => room.id !== roomId));
-  };
-
-  const handleRoomSearchChange = (value: string) => {
-    setRoomSearchQuery(value);
-    setShowRoomSuggestions(value.length > 0);
   };
 
   const handleDateChange = (field: "checkIn" | "checkOut", value: string) => {
@@ -179,6 +168,15 @@ const GuestNewBooking = () => {
     const nights = calculateNights();
     if (nights <= 0) {
       alert("Ngày trả phòng phải sau ngày nhận phòng");
+      return;
+    }
+
+    // Validate availability against existing bookings
+    const unavailable = getUnavailableRooms();
+    if (unavailable.length > 0) {
+      alert(
+        "Một hoặc nhiều phòng đã hết trong khoảng thời gian bạn chọn. Vui lòng đổi ngày khác hoặc chọn phòng khác."
+      );
       return;
     }
 
@@ -354,6 +352,20 @@ const GuestNewBooking = () => {
                   />
                 </div>
               </div>
+
+              {(() => {
+                const unavailable = getUnavailableRooms();
+                if (unavailable.length > 0) {
+                  return (
+                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                      Một hoặc nhiều phòng bạn chọn đã được đặt trong khoảng
+                      thời gian này. Vui lòng đổi ngày khác hoặc chọn phòng
+                      khác.
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             {/* Room Information */}
@@ -361,134 +373,26 @@ const GuestNewBooking = () => {
               <div className="flex items-center gap-2 mb-4">
                 <Home className="w-5 h-5 text-green-600" />
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Chọn phòng
+                  Phòng đã chọn
                 </h3>
               </div>
 
-              {/* Room Search */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tìm kiếm phòng{" "}
-                  {newBooking.checkIn && newBooking.checkOut && (
-                    <span className="text-sm font-normal text-green-600">
-                      (có sẵn từ {formatDate(newBooking.checkIn)} đến{" "}
-                      {formatDate(newBooking.checkOut)})
-                    </span>
-                  )}
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={roomSearchQuery}
-                    onChange={(e) => handleRoomSearchChange(e.target.value)}
-                    onFocus={() =>
-                      setShowRoomSuggestions(roomSearchQuery.length > 0)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder={
-                      !newBooking.checkIn || !newBooking.checkOut
-                        ? "Vui lòng chọn ngày nhận và trả phòng trước..."
-                        : "Nhập tên phòng để tìm kiếm và thêm..."
-                    }
-                    disabled={!newBooking.checkIn || !newBooking.checkOut}
-                    autoComplete="off"
-                  />
-
-                  {/* Room Suggestions Dropdown */}
-                  {showRoomSuggestions && filteredRooms.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-                      {filteredRooms.map((room) => (
-                        <div
-                          key={room.id}
-                          onClick={() => handleAddRoom(room)}
-                          className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-medium text-gray-900">
-                                {room.name}
-                              </div>
-                              <div className="text-sm text-gray-500 flex items-center gap-2 mt-1">
-                                <span
-                                  className={`px-2 py-1 rounded text-xs font-medium ${
-                                    room.type === "Standard"
-                                      ? "bg-gray-100 text-gray-800"
-                                      : room.type === "Deluxe"
-                                      ? "bg-blue-100 text-blue-800"
-                                      : room.type === "Premium"
-                                      ? "bg-purple-100 text-purple-800"
-                                      : "bg-yellow-100 text-yellow-800"
-                                  }`}
-                                >
-                                  {room.type}
-                                </span>
-                                <span>•</span>
-                                <span>{room.capacity} người</span>
-                                <span>•</span>
-                                <span className="font-medium text-green-600">
-                                  {formatCurrency(room.price)}/đêm
-                                </span>
-                                {calculateNights() > 0 && (
-                                  <>
-                                    <span>•</span>
-                                    <span className="font-medium text-blue-600">
-                                      {formatCurrency(
-                                        room.price * calculateNights()
-                                      )}{" "}
-                                      ({calculateNights()} đêm)
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <div className="text-xs text-gray-400 mt-1">
-                                {room?.amenities?.join(", ") || ""}
-                              </div>
-                            </div>
-                            <div className="ml-2">
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Thêm
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* No results message */}
-                  {showRoomSuggestions &&
-                    roomSearchQuery.length > 0 &&
-                    filteredRooms.length === 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-4 text-center text-gray-500">
-                        {!newBooking.checkIn || !newBooking.checkOut
-                          ? "Vui lòng chọn ngày nhận và trả phòng để xem phòng có sẵn"
-                          : selectedRooms.length > 0
-                          ? "Không tìm thấy phòng khác có sẵn trong thời gian này"
-                          : "Không tìm thấy phòng có sẵn trong thời gian này"}
-                      </div>
-                    )}
-                </div>
-              </div>
-
-              {/* Selected Rooms */}
-              {selectedRooms.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phòng đã chọn ({selectedRooms.length})
-                  </label>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {selectedRooms.map((room) => (
-                      <div
-                        key={room.id}
-                        className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
-                      >
+              {/* Selected Rooms Display */}
+              {selectedRooms.length > 0 ? (
+                <div className="space-y-4">
+                  {selectedRooms.map((room) => (
+                    <div
+                      key={room.id}
+                      className="bg-white border border-gray-200 rounded-lg p-4"
+                    >
+                      <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="font-medium text-gray-900">
-                            {room.name}
-                          </div>
-                          <div className="text-sm text-gray-500 flex items-center gap-2">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h4 className="text-lg font-semibold text-gray-900">
+                              {room.name}
+                            </h4>
                             <span
-                              className={`px-2 py-1 rounded text-xs font-medium ${
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${
                                 room.type === "Standard"
                                   ? "bg-gray-100 text-gray-800"
                                   : room.type === "Deluxe"
@@ -500,33 +404,72 @@ const GuestNewBooking = () => {
                             >
                               {room.type}
                             </span>
-                            <span>•</span>
-                            <span className="font-medium text-green-600">
-                              {formatCurrency(room.pricePerNight)}/đêm
-                            </span>
-                            {calculateNights() > 0 && (
-                              <>
-                                <span>•</span>
-                                <span className="font-medium text-blue-600">
-                                  {formatCurrency(
-                                    room.pricePerNight * calculateNights()
-                                  )}{" "}
-                                  ({calculateNights()} đêm)
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600">
+                                  Sức chứa:
                                 </span>
-                              </>
+                                <span className="font-medium text-gray-900">
+                                  {room.capacity} người
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600">
+                                  Giá/đêm:
+                                </span>
+                                <span className="font-medium text-emerald-600">
+                                  {formatCurrency(room.pricePerNight)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {calculateNights() > 0 && (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-gray-600">
+                                    Số đêm:
+                                  </span>
+                                  <span className="font-medium text-gray-900">
+                                    {calculateNights()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-gray-600">
+                                    Tổng tiền:
+                                  </span>
+                                  <span className="font-medium text-blue-600">
+                                    {formatCurrency(
+                                      room.pricePerNight * calculateNights()
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
+
                         <button
                           type="button"
                           onClick={() => handleRemoveRoom(room.id)}
-                          className="ml-2 p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
+                          className="ml-4 p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-5 h-5" />
                         </button>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Home className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>Chưa có phòng nào được chọn</p>
+                  <p className="text-sm">
+                    Phòng sẽ được tự động chọn nếu bạn bấm "Đặt phòng" từ trang
+                    chi tiết
+                  </p>
                 </div>
               )}
             </div>
