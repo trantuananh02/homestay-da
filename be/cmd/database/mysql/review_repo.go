@@ -23,13 +23,13 @@ func NewReviewRepository(db *sqlx.DB) repo.ReviewRepository {
 // Create tạo review mới
 func (r *reviewRepository) Create(ctx context.Context, req *model.ReviewCreateRequest) (*model.Review, error) {
 	query := `
-		INSERT INTO review (user_id, homestay_id, booking_id, rating, comment)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, user_id, homestay_id, booking_id, rating, comment, created_at
+		INSERT INTO review (user_id, homestay_id, booking_id, rating, comment, image_urls)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, user_id, homestay_id, booking_id, rating, comment, image_urls, created_at
 	`
 
 	var review model.Review
-	err := r.db.GetContext(ctx, &review, query, req.UserID, req.HomestayID, req.BookingID, req.Rating, req.Comment)
+	err := r.db.GetContext(ctx, &review, query, req.UserID, req.HomestayID, req.BookingID, req.Rating, req.Comment, req.ImageURLs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create review: %w", err)
 	}
@@ -40,7 +40,7 @@ func (r *reviewRepository) Create(ctx context.Context, req *model.ReviewCreateRe
 // GetByID lấy review theo ID
 func (r *reviewRepository) GetByID(ctx context.Context, id int) (*model.Review, error) {
 	query := `
-		SELECT r.id, r.user_id, r.homestay_id, r.booking_id, r.rating, r.comment, r.created_at,
+		SELECT r.id, r.user_id, r.homestay_id, r.booking_id, r.rating, r.comment, r.image_urls, r.created_at,
 		       u.name as user_name, h.name as homestay_name
 		FROM review r
 		LEFT JOIN "user" u ON r.user_id = u.id
@@ -77,6 +77,12 @@ func (r *reviewRepository) Update(ctx context.Context, id int, req *model.Review
 	if req.Comment != nil {
 		setClauses = append(setClauses, fmt.Sprintf("comment = $%d", argIndex))
 		args = append(args, *req.Comment)
+		argIndex++
+	}
+
+	if req.ImageURLs != nil {
+		setClauses = append(setClauses, fmt.Sprintf("image_urls = $%d", argIndex))
+		args = append(args, *req.ImageURLs)
 		argIndex++
 	}
 
@@ -132,7 +138,7 @@ func (r *reviewRepository) List(ctx context.Context, page, pageSize int) ([]*mod
 	// Lấy danh sách review
 	offset := (page - 1) * pageSize
 	query := `
-		SELECT r.id, r.user_id, r.homestay_id, r.booking_id, r.rating, r.comment, r.created_at,
+		SELECT r.id, r.user_id, r.homestay_id, r.booking_id, r.rating, r.comment, r.image_urls, r.created_at,
 		       u.name as user_name, h.name as homestay_name
 		FROM review r
 		LEFT JOIN "user" u ON r.user_id = u.id

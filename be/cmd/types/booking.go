@@ -125,9 +125,10 @@ type BookingEmailData struct {
 }
 
 type CreateReviewReq struct {
-	BookingID int    `json:"bookingId"`
-	Comment   string `json:"comment"`
-	Rating    int    `json:"rating"`
+	BookingID int      `json:"bookingId"`
+	Comment   string   `json:"comment"`
+	Rating    int      `json:"rating"`
+	ImageURLs []string `json:"imageUrls,omitempty"`
 }
 
 type FilterPaymentReq struct {

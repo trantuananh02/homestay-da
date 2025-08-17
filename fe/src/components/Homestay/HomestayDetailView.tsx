@@ -163,6 +163,24 @@ function HomestayDetailView() {
                   <p className="text-gray-600 mb-3 leading-relaxed">
                     {review.comment}
                   </p>
+                  
+                  {/* Review Images */}
+                  {review.imageUrls && review.imageUrls.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex gap-2 overflow-x-auto">
+                        {review.imageUrls.map((imageUrl, imgIndex) => (
+                          <img
+                            key={imgIndex}
+                            src={imageUrl}
+                            alt={`Review image ${imgIndex + 1}`}
+                            className="w-16 h-16 object-cover rounded-lg border border-gray-200 hover:border-emerald-300 transition-colors cursor-pointer"
+                            onClick={() => window.open(imageUrl, '_blank')}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   <p className="text-sm text-gray-400">{review.createdAt}</p>
                 </div>
               ))}

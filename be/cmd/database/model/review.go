@@ -12,6 +12,7 @@ type Review struct {
 	BookingID  int       `db:"booking_id" json:"bookingId"`
 	Rating     int       `db:"rating" json:"rating"`
 	Comment    string    `db:"comment" json:"comment"`
+	ImageURLs  []string  `db:"image_urls" json:"imageUrls,omitempty"`
 	CreatedAt  time.Time `db:"created_at" json:"createdAt"`
 	// Thông tin bổ sung từ join
 	UserName     string `db:"user_name" json:"userName,omitempty"`
@@ -20,17 +21,19 @@ type Review struct {
 
 // ReviewCreateRequest request tạo review mới
 type ReviewCreateRequest struct {
-	UserID     int    `json:"userId" binding:"required"`
-	HomestayID int    `json:"homestayId" binding:"required"`
-	BookingID  int   `json:"bookingId"`
-	Rating     int    `json:"rating" binding:"required,min=1,max=5"`
-	Comment    string `json:"comment"`
+	UserID     int      `json:"userId" binding:"required"`
+	HomestayID int      `json:"homestayId" binding:"required"`
+	BookingID  int      `json:"bookingId"`
+	Rating     int      `json:"rating" binding:"required,min=1,max=5"`
+	Comment    string   `json:"comment"`
+	ImageURLs  []string `json:"imageUrls,omitempty"`
 }
 
 // ReviewUpdateRequest request cập nhật review
 type ReviewUpdateRequest struct {
-	Rating  *int    `json:"rating" binding:"omitempty,min=1,max=5"`
-	Comment *string `json:"comment"`
+	Rating     *int      `json:"rating" binding:"omitempty,min=1,max=5"`
+	Comment    *string   `json:"comment"`
+	ImageURLs  *[]string `json:"imageUrls,omitempty"`
 }
 
 // ReviewSearchRequest request tìm kiếm review

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Star, X, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, X, MapPin, Trash2 } from 'lucide-react';
 import { Review, Booking } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
+import CusFormUpload from '../UploadFile';
+import { homestayService } from '../../services/homestayService';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -20,8 +22,45 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [formData, setFormData] = useState({
+    rating: 5,
+    comment: '',
+    imageUrls: [] as string[]
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): Promise<void> => {
+    const files: File[] = Array.from(e.target.files ?? []);
+    setIsUploading(true);
+
+    const uploaded = await Promise.all(
+      files.map(async (file) => {
+        try {
+          const url = await homestayService.uploadRoomImage(file);
+          return url;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    setFormData((prev) => ({
+      ...prev,
+      imageUrls: [...(prev?.imageUrls ?? []), ...(uploaded.filter(Boolean) as string[])],
+    }));
+    setIsUploading(false);
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      imageUrls: prev.imageUrls.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!comment.trim()) {
@@ -33,18 +72,33 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
       homestayId: 0, // This should be set to the actual homestay ID
       bookingId: booking.id,
       guestId: user?.id || 0,
-      rating,
-      comment,
+      rating: formData.rating,
+      comment: formData.comment,
       createdAt: new Date().toISOString(),
+      imageUrls: formData.imageUrls,
     };
 
     onSubmit(review);
     onClose();
 
     // Reset form
+    setFormData({
+      rating: 5,
+      comment: '',
+      imageUrls: []
+    });
     setRating(5);
     setComment('');
   };
+
+  // Sync local state with formData
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      rating,
+      comment
+    }));
+  }, [rating, comment]);
 
   if (!isOpen) return null;
 
@@ -141,20 +195,53 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
               />
             </div>
 
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Thêm ảnh (tùy chọn)
+              </label>
+              
+              <div className="flex flex-wrap gap-4">
+                {formData.imageUrls.map((imageUrl, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={imageUrl}
+                      alt={`Ảnh review ${index + 1}`}
+                      className="w-40 h-40 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+                <CusFormUpload
+                  disabled={false}
+                  handleUpload={handleImageUpload}
+                  isUploading={isUploading}
+                />
+              </div>
+            </div>
+
             {/* Submit Buttons */}
             <div className="flex space-x-4 pt-6 border-t">
               <button
                 type="button"
                 onClick={onClose}
                 className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                disabled={isUploading}
               >
                 Hủy
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isUploading}
               >
-                Gửi đánh giá
+                {isUploading ? 'Đang xử lý...' : 'Gửi đánh giá'}
               </button>
             </div>
           </form>

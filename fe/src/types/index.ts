@@ -34,6 +34,9 @@ export interface Review {
   rating: number; // Sử dụng số nguyên từ 1 đến 5
   comment: string;
   createdAt?: string;
+  imageUrls?: string[]; // Danh sách URL ảnh của review
+  userName?: string; // Tên người đánh giá
+  homestayName?: string; // Tên homestay
 }
 
 export interface Homestay {
@@ -177,6 +180,9 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt?: string;
+  imageUrls?: string[]; // Danh sách URL ảnh của review
+  userName?: string; // Tên người đánh giá
+  homestayName?: string; // Tên homestay
 }
 
 // API Request/Response Types

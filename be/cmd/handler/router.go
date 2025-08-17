@@ -19,9 +19,10 @@ func RegisterHandlers(router *gin.Engine, serverCtx *svc.ServiceContext) {
 	router.GET("/health", func(c *gin.Context) {
 		response.ResponseSuccess(c, gin.H{"status": "ok"})
 	})
-	// Upload file handler
+	
+	// Upload file handler (cần authentication)
 	uploadHandler := NewUploadFileHandler(serverCtx)
-	router.POST("/upload", uploadHandler.UploadFile)
+	router.POST("/upload", middleware.AuthMiddleware(serverCtx), uploadHandler.UploadFile)
 
 	// API routes
 	api := router.Group("/api")

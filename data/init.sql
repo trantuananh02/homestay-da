@@ -87,6 +87,7 @@ CREATE TABLE payment (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tạo bảng review (sau khi được xác nhận)
 CREATE TABLE review (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
@@ -94,5 +95,6 @@ CREATE TABLE review (
     booking_id INTEGER REFERENCES booking(id) ON DELETE SET NULL, -- Liên kết với booking cụ thể
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment TEXT,
+    image_urls TEXT, -- Mảng chứa các URL ảnh của review (JSON array)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

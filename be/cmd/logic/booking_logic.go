@@ -725,6 +725,7 @@ func (l *BookingLogic) CreateReview(ctx context.Context, userID int, req *types.
 		UserID:     userID,
 		Comment:    req.Comment,
 		Rating:     req.Rating,
+		ImageURLs:  req.ImageURLs,
 	}
 
 	// Lưu review vào DB
