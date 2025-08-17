@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Star, X, MapPin, Trash2 } from 'lucide-react';
 import { Review, Booking } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
@@ -22,12 +22,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [formData, setFormData] = useState({
-    rating: 5,
-    comment: '',
-    imageUrls: [] as string[]
-  });
 
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -46,21 +42,18 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
       })
     );
 
-    setFormData((prev) => ({
+    setImageUrls(prev => [
       ...prev,
-      imageUrls: [...(prev?.imageUrls ?? []), ...(uploaded.filter(Boolean) as string[])],
-    }));
+      ...(uploaded.filter(Boolean) as string[])
+    ]);
     setIsUploading(false);
   };
 
   const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      imageUrls: prev.imageUrls.filter((_, i) => i !== index)
-    }));
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!comment.trim()) {
@@ -72,33 +65,20 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
       homestayId: 0, // This should be set to the actual homestay ID
       bookingId: booking.id,
       guestId: user?.id || 0,
-      rating: formData.rating,
-      comment: formData.comment,
+      rating,
+      comment,
       createdAt: new Date().toISOString(),
-      imageUrls: formData.imageUrls,
+      imageUrls: imageUrls,
     };
 
     onSubmit(review);
     onClose();
 
     // Reset form
-    setFormData({
-      rating: 5,
-      comment: '',
-      imageUrls: []
-    });
     setRating(5);
     setComment('');
+    setImageUrls([]);
   };
-
-  // Sync local state with formData
-  useEffect(() => {
-    setFormData(prev => ({
-      ...prev,
-      rating,
-      comment
-    }));
-  }, [rating, comment]);
 
   if (!isOpen) return null;
 
@@ -202,7 +182,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
               </label>
               
               <div className="flex flex-wrap gap-4">
-                {formData.imageUrls.map((imageUrl, index) => (
+                {imageUrls.map((imageUrl, index) => (
                   <div key={index} className="relative">
                     <img
                       src={imageUrl}
