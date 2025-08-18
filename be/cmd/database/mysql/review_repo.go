@@ -311,8 +311,8 @@ func (r *reviewRepository) GetByHomestayID(ctx context.Context, homestayID int, 
 	// Lấy danh sách review
 	offset := (page - 1) * pageSize
 	query := `
-		SELECT r.id, r.user_id, r.homestay_id, r.booking_id, r.rating, r.comment, r.created_at,
-		       u.name as user_name, h.name as homestay_name
+		SELECT r.id, r.user_id, r.homestay_id, r.booking_id, r.rating, r.comment, r.created_at, r.image_urls,
+			   u.name as user_name, h.name as homestay_name
 		FROM review r
 		LEFT JOIN "user" u ON r.user_id = u.id
 		LEFT JOIN homestay h ON r.homestay_id = h.id
@@ -321,10 +321,61 @@ func (r *reviewRepository) GetByHomestayID(ctx context.Context, homestayID int, 
 		LIMIT $2 OFFSET $3
 	`
 
-	var reviews []*model.Review
-	err = r.db.SelectContext(ctx, &reviews, query, homestayID, pageSize, offset)
+	type dbReview struct {
+		ID           int       `db:"id"`
+		UserID       int       `db:"user_id"`
+		HomestayID   int       `db:"homestay_id"`
+		BookingID    int       `db:"booking_id"`
+		Rating       int       `db:"rating"`
+		Comment      string    `db:"comment"`
+		CreatedAt    sql.NullTime `db:"created_at"`
+		ImageURLs    string    `db:"image_urls"`
+		UserName     string    `db:"user_name"`
+		HomestayName string    `db:"homestay_name"`
+	}
+
+	var dbReviews []dbReview
+	err = r.db.SelectContext(ctx, &dbReviews, query, homestayID, pageSize, offset)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get reviews by homestay: %w", err)
+	}
+
+	var reviews []*model.Review
+	for _, dbRv := range dbReviews {
+		var imageUrls []string
+		if dbRv.ImageURLs != "" {
+			// Nếu kiểu dữ liệu là chuỗi JSON chứa mảng, cần giải mã 2 lần
+			var temp interface{}
+			if err := json.Unmarshal([]byte(dbRv.ImageURLs), &temp); err == nil {
+				switch v := temp.(type) {
+				case []interface{}:
+					for _, item := range v {
+						switch s := item.(type) {
+						case string:
+							imageUrls = append(imageUrls, s)
+						}
+					}
+				case string:
+					// Nếu là chuỗi, giải mã tiếp
+					var urls []string
+					if err := json.Unmarshal([]byte(v), &urls); err == nil {
+						imageUrls = urls
+					}
+				}
+			}
+		}
+		reviews = append(reviews, &model.Review{
+			ID: dbRv.ID,
+			UserID: dbRv.UserID,
+			HomestayID: dbRv.HomestayID,
+			BookingID: dbRv.BookingID,
+			Rating: dbRv.Rating,
+			Comment: dbRv.Comment,
+			ImageURLs: imageUrls,
+			CreatedAt: dbRv.CreatedAt.Time,
+			UserName: dbRv.UserName,
+			HomestayName: dbRv.HomestayName,
+		})
 	}
 
 	return reviews, total, nil

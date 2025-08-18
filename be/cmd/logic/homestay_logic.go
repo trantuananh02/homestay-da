@@ -92,6 +92,7 @@ func (h *HomestayLogic) GetHomestayByID(homestayID, hostID int) (*types.Homestay
 			Rating:     review.Rating,
 			Comment:    review.Comment,
 			CreatedAt:  review.CreatedAt,
+			ImageUrls:  review.ImageURLs,
 		})
 		totalRating += review.Rating
 		totalReviews++
@@ -847,6 +848,7 @@ func (h *HomestayLogic) GetHomestayReviews(homestayID int) ([]types.Review, erro
 			Rating:     review.Rating,
 			Comment:    review.Comment,
 			CreatedAt:  review.CreatedAt,
+			ImageUrls:  review.ImageURLs,
 		})
 	}
 

@@ -1,3 +1,15 @@
+// Chuyển đổi imageUrls về mảng URL thực tế
+export function parseImageUrls(imageUrls: string[]): string[] {
+  if (!imageUrls) return [];
+  if (imageUrls.length === 1 && imageUrls[0].startsWith('[')) {
+    try {
+      return JSON.parse(imageUrls[0]);
+    } catch {
+      return [];
+    }
+  }
+  return imageUrls;
+}
 import api from "./api";
 import { toastService } from "./toastService";
 import {

@@ -1,18 +1,57 @@
 package types
 
-import "time"
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
+	"time"
+)
 
-// Types Review
+// StringArray là custom type để ánh xạ []string <-> JSON trong Postgres
+type StringArray []string
+
+// Scan implements the sql.Scanner interface
+func (a *StringArray) Scan(src interface{}) error {
+	if src == nil {
+		*a = []string{}
+		return nil
+	}
+	switch v := src.(type) {
+	case string:
+		if v == "null" || v == "" {
+			*a = []string{}
+			return nil
+		}
+		return json.Unmarshal([]byte(v), a)
+	case []byte:
+		if string(v) == "null" || len(v) == 0 {
+			*a = []string{}
+			return nil
+		}
+		return json.Unmarshal(v, a)
+	default:
+		return fmt.Errorf("unsupported type: %T", v)
+	}
+}
+
+
+// Value implements the driver.Valuer interface
+func (a StringArray) Value() (driver.Value, error) {
+	return json.Marshal(a)
+}
+
+// Review struct ánh xạ với bảng review
 type Review struct {
-	ID         int       `json:"id" db:"id"`
-	Rating     int       `json:"rating" db:"rating"`
-	Comment    string    `json:"comment" db:"comment"`
-	CreatedAt  time.Time `json:"createdAt" db:"created_at"`
-	UpdatedAt  time.Time `json:"updatedAt" db:"updated_at"`
-	BookingID  int       `json:"bookingId" db:"booking_id"`
-	GuestID    int       `json:"guestId" db:"guest_id"`
-	GuestName  string    `json:"guestName" db:"guest_name"`
-	HomestayID int       `json:"homestayId" db:"homestay_id"`
+	ID         int         `json:"id" db:"id"`
+	Rating     int         `json:"rating" db:"rating"`
+	Comment    string      `json:"comment" db:"comment"`
+	CreatedAt  time.Time   `json:"createdAt" db:"created_at"`
+	UpdatedAt  time.Time   `json:"updatedAt" db:"updated_at"`
+	BookingID  int         `json:"bookingId" db:"booking_id"`
+	GuestID    int         `json:"guestId" db:"guest_id"`
+	GuestName  string      `json:"guestName" db:"guest_name"`
+	HomestayID int         `json:"homestayId" db:"homestay_id"`
+	ImageUrls  StringArray `json:"imageUrls" db:"image_urls"`
 }
 
 // Homestay types
