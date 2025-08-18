@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"homestay-be/cmd/database/model"
 	"homestay-be/cmd/database/repo"
@@ -457,11 +458,12 @@ func (r *bookingRepository) CheckRoomExists(ctx context.Context, roomID int, che
 
 // CreateReview tạo review cho booking
 func (r *bookingRepository) CreateReview(ctx context.Context, review *model.ReviewCreateRequest) (*model.Review, error) {
-	query := `INSERT INTO review (booking_id, user_id, homestay_id, comment, rating, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id, booking_id, user_id, homestay_id, comment, rating, created_at`
-	var rv model.Review
-	err := r.db.GetContext(ctx, &rv, query, review.BookingID, review.UserID, review.HomestayID, review.Comment, review.Rating, time.Now())
+
+	query := `INSERT INTO review (booking_id, user_id, homestay_id, comment, rating, image_urls, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, booking_id, user_id, homestay_id, comment, rating, image_urls, created_at`
+
+	err := r.db.GetContext(ctx, &rv, query, review.BookingID, review.UserID, review.HomestayID, review.Comment, review.Rating, review.ImageURLs, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -471,15 +473,41 @@ func (r *bookingRepository) CreateReview(ctx context.Context, review *model.Revi
 // GetReviewByBookingID lấy review theo booking ID
 func (r *bookingRepository) GetReviewByBookingID(ctx context.Context, bookingID int) (*model.Review, error) {
 	query := `SELECT * FROM review WHERE booking_id = $1 LIMIT 1`
-	var review model.Review
-	err := r.db.GetContext(ctx, &review, query, bookingID)
+	type dbReview struct {
+		ID         int       `db:"id"`
+		UserID     int       `db:"user_id"`
+		HomestayID int       `db:"homestay_id"`
+		BookingID  int       `db:"booking_id"`
+		Rating     int       `db:"rating"`
+		Comment    string    `db:"comment"`
+		ImageURLs  string    `db:"image_urls"`
+		CreatedAt  time.Time `db:"created_at"`
+	}
+	var dbRv dbReview
+	err := r.db.GetContext(ctx, &dbRv, query, bookingID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("review not found for booking ID %d", bookingID)
 		}
 		return nil, fmt.Errorf("failed to get review: %w", err)
 	}
-	return &review, nil
+	var imageUrls []string
+	if dbRv.ImageURLs != "" {
+		if err := json.Unmarshal([]byte(dbRv.ImageURLs), &imageUrls); err != nil {
+			imageUrls = []string{} // fallback nếu lỗi
+		}
+	}
+	review := &model.Review{
+		ID: dbRv.ID,
+		UserID: dbRv.UserID,
+		HomestayID: dbRv.HomestayID,
+		BookingID: dbRv.BookingID,
+		Rating: dbRv.Rating,
+		Comment: dbRv.Comment,
+		ImageURLs: imageUrls,
+		CreatedAt: dbRv.CreatedAt,
+	}
+	return review, nil
 }
 
 // FilterByBookingCode lọc booking theo booking code
