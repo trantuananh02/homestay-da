@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L, { Icon } from "leaflet";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, MapPin, Building } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -12,6 +15,50 @@ const EditHomestay: React.FC = () => {
 
   const [homestay, setHomestay] = useState<Homestay | null>(null);
   const [formData, setFormData] = useState<UpdateHomestayRequest>({});
+
+  // Icon đỏ cho marker
+  const redIcon: Icon = new L.Icon({
+    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  });
+
+  // Ref cho input tìm kiếm
+  const searchRef = React.useRef<HTMLInputElement>(null);
+
+  // Hàm tìm kiếm địa chỉ sử dụng Nominatim API
+  const handleSearch = async () => {
+    const query = searchRef.current?.value;
+    if (!query) return;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      query
+    )}`;
+    const res = await fetch(url);
+    const data: Array<{ lat: string; lon: string }> = await res.json();
+    if (data && data.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        latitude: parseFloat(data[0].lat),
+        longitude: parseFloat(data[0].lon),
+      }));
+    } else {
+      alert("Không tìm thấy địa chỉ!");
+    }
+  };
+
+  // Component chọn vị trí trên bản đồ
+  const LocationPicker = () => {
+    useMapEvents({
+      click(e: { latlng: { lat: number; lng: number } }) {
+        setFormData((prev) => ({
+          ...prev,
+          latitude: e.latlng.lat,
+          longitude: e.latlng.lng,
+        }));
+      },
+    });
+    return null;
+  };
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -265,12 +312,11 @@ const EditHomestay: React.FC = () => {
               </div>
             </div>
 
-            {/* Coordinates */}
+            {/* Coordinates + OpenStreetMap */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900">
                 Tọa độ địa lý
               </h2>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -294,7 +340,6 @@ const EditHomestay: React.FC = () => {
                     Ví dụ: 10.762622 (Hà Nội), 10.823099 (TP.HCM)
                   </p>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Kinh độ (Longitude) *
@@ -318,30 +363,52 @@ const EditHomestay: React.FC = () => {
                   </p>
                 </div>
               </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="text-sm font-medium text-blue-900 mb-2">
-                  Hướng dẫn lấy tọa độ:
-                </h3>
-                <ol className="text-sm text-blue-800 space-y-1">
-                  <li>
-                    1. Truy cập{" "}
-                    <a
-                      href="https://maps.google.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline"
-                    >
-                      Google Maps
-                    </a>
-                  </li>
-                  <li>2. Tìm địa chỉ homestay của bạn</li>
-                  <li>3. Click chuột phải vào vị trí chính xác</li>
-                  <li>
-                    4. Copy tọa độ hiển thị (ví dụ: 10.762622, 106.660172)
-                  </li>
-                  <li>5. Nhập vào form bên trên</li>
-                </ol>
+              {/* OpenStreetMap + Tìm kiếm địa chỉ */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chọn vị trí trên bản đồ:
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    ref={searchRef}
+                    type="text"
+                    placeholder="Nhập địa chỉ để tìm kiếm..."
+                    className="p-2 border rounded w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded"
+                  >
+                    Tìm kiếm
+                  </button>
+                </div>
+                <div className="w-full h-[400px] rounded-lg overflow-hidden border border-gray-300">
+                  <MapContainer
+                    center={[
+                      formData.latitude || 21.028511,
+                      formData.longitude || 105.804817,
+                    ]}
+                    zoom={formData.latitude && formData.longitude ? 15 : 6}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution="© OpenStreetMap contributors"
+                    />
+                    <LocationPicker />
+                    {formData.latitude !== 0 && formData.longitude !== 0 && (
+                      <Marker
+                        position={[formData.latitude, formData.longitude]}
+                        icon={redIcon}
+                      />
+                    )}
+                  </MapContainer>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Click vào bản đồ để chọn vị trí, tọa độ sẽ tự động điền vào ô
+                  bên trên.
+                </p>
               </div>
             </div>
 

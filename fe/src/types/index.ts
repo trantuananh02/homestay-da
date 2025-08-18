@@ -130,6 +130,7 @@ export interface RoomStats {
 
 export interface Booking {
   id: number;
+  homestayId: number;
   bookingCode: string;
   customerName: string;
   customerPhone: string;

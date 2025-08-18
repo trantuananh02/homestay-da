@@ -1,4 +1,7 @@
 import { MapPin, Star, Camera } from "lucide-react";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L, { Icon } from "leaflet";
 import { Homestay } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -7,6 +10,12 @@ import RoomList from "../../pages/RoomList";
 import ViewRoomModal from "../Room/ViewRoomModal";
 
 function HomestayDetailView() {
+  // Icon đỏ cho marker
+  const redIcon: Icon = new L.Icon({
+    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  });
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [homestay, setHomestay] = useState<Homestay>({} as Homestay);
@@ -163,7 +172,7 @@ function HomestayDetailView() {
                   <p className="text-gray-600 mb-3 leading-relaxed">
                     {review.comment}
                   </p>
-                  
+
                   {/* Review Images */}
                   {review.imageUrls && review.imageUrls.length > 0 && (
                     <div className="mb-3">
@@ -174,13 +183,13 @@ function HomestayDetailView() {
                             src={imageUrl}
                             alt={`Review image ${imgIndex + 1}`}
                             className="w-16 h-16 object-cover rounded-lg border border-gray-200 hover:border-emerald-300 transition-colors cursor-pointer"
-                            onClick={() => window.open(imageUrl, '_blank')}
+                            onClick={() => window.open(imageUrl, "_blank")}
                           />
                         ))}
                       </div>
                     </div>
                   )}
-                  
+
                   <p className="text-sm text-gray-400">{review.createdAt}</p>
                 </div>
               ))}
@@ -212,11 +221,49 @@ function HomestayDetailView() {
               </div>
             </div>
 
-            <div className="bg-gray-100 rounded-xl h-64 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <MapPin className="w-12 h-12 mx-auto mb-2 text-emerald-600" />
-                <p>Bản đồ sẽ được hiển thị tại đây</p>
-              </div>
+            {/* OpenStreetMap hiển thị vị trí homestay */}
+            <div
+              className="bg-gray-100 rounded-xl h-64 overflow-hidden cursor-pointer"
+              onClick={() => {
+                if (homestay.latitude && homestay.longitude) {
+                  window.open(
+                    `https://www.google.com/maps/dir/?api=1&destination=${homestay.latitude},${homestay.longitude}`,
+                    "_blank"
+                  );
+                }
+              }}
+            >
+              {homestay.latitude && homestay.longitude ? (
+                <MapContainer
+                  center={[
+                    Number(homestay.latitude),
+                    Number(homestay.longitude),
+                  ]}
+                  zoom={16}
+                  style={{ width: "100%", height: "100%" }}
+                  dragging={false}
+                  scrollWheelZoom={false}
+                  doubleClickZoom={false}
+                  attributionControl={false}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="© OpenStreetMap contributors"
+                  />
+                  <Marker
+                    position={[
+                      Number(homestay.latitude),
+                      Number(homestay.longitude),
+                    ]}
+                    icon={redIcon}
+                  />
+                </MapContainer>
+              ) : (
+                <div className="text-center text-gray-500 flex flex-col items-center justify-center h-full">
+                  <MapPin className="w-12 h-12 mx-auto mb-2 text-emerald-600" />
+                  <p>Không có dữ liệu vị trí để hiển thị bản đồ</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

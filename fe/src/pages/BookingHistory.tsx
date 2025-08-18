@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Calendar,
   Filter,
@@ -11,26 +11,28 @@ import {
   MoreVertical,
   X,
   Check,
-} from 'lucide-react';
-import { Booking, Review } from '../types';
-import { bookingService } from '../services/bookingService';
-import { useConfirm } from '../components/ConfirmDialog';
-import ReviewModal from '../components/Review/ReviewModal';
-import BookingDetailModal from '../components/Booking/DetailBookingModal';
+} from "lucide-react";
+import { Booking, Review } from "../types";
+import { bookingService } from "../services/bookingService";
+import { useConfirm } from "../components/ConfirmDialog";
+import ReviewModal from "../components/Review/ReviewModal";
+import BookingDetailModal from "../components/Booking/DetailBookingModal";
 
 function BookingHistory() {
   const confirm = useConfirm();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [filters, setFilters] = useState({
-    customerName: '',
-    customerPhone: '',
-    dateFrom: '',
-    dateTo: '',
-    status: ''
+    customerName: "",
+    customerPhone: "",
+    dateFrom: "",
+    dateTo: "",
+    status: "",
   });
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking>({} as Booking);
+  const [selectedBooking, setSelectedBooking] = useState<Booking>(
+    {} as Booking
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [showDetailBooking, setShowDetailBooking] = useState(false);
@@ -43,12 +45,12 @@ function BookingHistory() {
           dateTo: filters.dateTo,
           status: filters.status,
           page: currentPage,
-          pageSize: itemsPerPage
+          pageSize: itemsPerPage,
         });
 
         setBookings(bookingList.bookings || []);
       } catch (error) {
-        console.error('Error fetching bookings:', error);
+        console.error("Error fetching bookings:", error);
       }
     };
 
@@ -56,37 +58,39 @@ function BookingHistory() {
   }, [filters, currentPage]);
 
   const statusColors = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    confirmed: 'bg-blue-100 text-blue-800',
-    cancelled: 'bg-red-100 text-red-800',
-    completed: 'bg-green-100 text-green-800'
+    pending: "bg-yellow-100 text-yellow-800",
+    confirmed: "bg-blue-100 text-blue-800",
+    cancelled: "bg-red-100 text-red-800",
+    completed: "bg-green-100 text-green-800",
   };
 
   const statusLabels = {
-    pending: 'Chờ xác nhận',
-    confirmed: 'Đã xác nhận',
-    cancelled: 'Đã hủy',
-    completed: 'Hoàn thành'
+    pending: "Chờ xác nhận",
+    confirmed: "Đã xác nhận",
+    cancelled: "Đã hủy",
+    completed: "Hoàn thành",
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
-  const filteredBookings = bookings.filter(booking => {
+  const filteredBookings = bookings.filter((booking) => {
     return (
-      booking.customerName.toLowerCase().includes(filters.customerName.toLowerCase()) &&
+      booking.customerName
+        .toLowerCase()
+        .includes(filters.customerName.toLowerCase()) &&
       booking.customerPhone.includes(filters.customerPhone) &&
       (!filters.dateFrom || booking.bookingDate >= filters.dateFrom) &&
       (!filters.dateTo || booking.bookingDate <= filters.dateTo) &&
@@ -96,26 +100,29 @@ function BookingHistory() {
 
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentBookings = filteredBookings.slice(startIndex, startIndex + itemsPerPage);
+  const currentBookings = filteredBookings.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
     setCurrentPage(1);
   };
 
   const clearFilters = () => {
     setFilters({
-      customerName: '',
-      customerPhone: '',
-      dateFrom: '',
-      dateTo: '',
-      status: ''
+      customerName: "",
+      customerPhone: "",
+      dateFrom: "",
+      dateTo: "",
+      status: "",
     });
     setCurrentPage(1);
   };
 
   const handleEditBooking = (booking: Booking) => {
-    console.log('Edit booking', booking.id);
+    console.log("Edit booking", booking.id);
     setSelectedBooking(booking);
     setActiveDropdown(null);
   };
@@ -125,40 +132,43 @@ function BookingHistory() {
 
     // Luôn có thao tác xem chi tiết
     actions.push({
-      label: 'Xem chi tiết',
+      label: "Xem chi tiết",
       icon: Eye,
-      color: 'text-blue-600 hover:text-blue-800',
+      color: "text-blue-600 hover:text-blue-800",
       action: () => {
-        console.log('View booking', booking.id);
+        console.log("View booking", booking.id);
 
         setSelectedBooking(booking);
         setShowDetailBooking(true);
-      }
+      },
     });
 
     // Thao tác theo trạng thái
     switch (booking.status) {
-      case 'pending':
+      case "pending":
         actions.push(
           {
-            label: 'Chỉnh sửa',
+            label: "Chỉnh sửa",
             icon: Edit,
-            color: 'text-blue-600 hover:text-blue-800',
-            action: () => handleEditBooking(booking)
+            color: "text-blue-600 hover:text-blue-800",
+            action: () => handleEditBooking(booking),
           },
           {
-            label: 'Hủy đặt phòng',
+            label: "Hủy đặt phòng",
             icon: X,
-            color: 'text-red-600 hover:text-red-800',
+            color: "text-red-600 hover:text-red-800",
             action: async () => {
               var result = await confirm({
-                title: 'Xác nhận hủy đặt phòng',
+                title: "Xác nhận hủy đặt phòng",
                 description: `Bạn có chắc chắn muốn hủy đặt phòng này?`,
-                confirmText: 'Hủy',
-                cancelText: 'Không'
+                confirmText: "Hủy",
+                cancelText: "Không",
               });
               if (result) {
-                await bookingService.updateGuestBookingStatus(booking.id, 'cancelled');
+                await bookingService.updateGuestBookingStatus(
+                  booking.id,
+                  "cancelled"
+                );
 
                 const bookingList = await bookingService.getGuestBookings({
                   customerName: filters.customerName,
@@ -167,31 +177,31 @@ function BookingHistory() {
                   dateTo: filters.dateTo,
                   status: filters.status,
                   page: currentPage,
-                  pageSize: itemsPerPage
+                  pageSize: itemsPerPage,
                 });
 
                 setBookings(bookingList.bookings || []);
               }
               setActiveDropdown(null);
-            }
+            },
           }
         );
         break;
 
-      case 'confirmed':
+      case "confirmed":
         actions.push({
-          label: 'Hủy đặt phòng',
+          label: "Hủy đặt phòng",
           icon: X,
-          color: 'text-red-600 hover:text-red-800',
+          color: "text-red-600 hover:text-red-800",
           action: async () => {
             var result = await confirm({
-              title: 'Xác nhận hủy đặt phòng',
+              title: "Xác nhận hủy đặt phòng",
               description: `Bạn có chắc chắn muốn hủy đặt phòng này?`,
-              confirmText: 'Hủy',
-              cancelText: 'Không'
+              confirmText: "Hủy",
+              cancelText: "Không",
             });
             if (result) {
-              await bookingService.updateBookingStatus(booking.id, 'cancelled');
+              await bookingService.updateBookingStatus(booking.id, "cancelled");
 
               const bookingList = await bookingService.filterBookings({
                 customerName: filters.customerName,
@@ -200,31 +210,31 @@ function BookingHistory() {
                 dateTo: filters.dateTo,
                 status: filters.status,
                 page: currentPage,
-                pageSize: itemsPerPage
+                pageSize: itemsPerPage,
               });
 
               setBookings(bookingList.bookings || []);
             }
             setActiveDropdown(null);
-          }
+          },
         });
         break;
 
-      case 'completed':
+      case "completed":
         actions.push({
-          label: 'Đánh giá Homestay',
+          label: "Đánh giá Homestay",
           icon: Check,
-          color: 'text-green-600 hover:text-green-800',
+          color: "text-green-600 hover:text-green-800",
           action: () => {
-            console.log('View booking', booking.id);
+            console.log("View booking", booking.id);
 
             setSelectedBooking(booking);
             setIsReviewModalOpen(true);
-          }
+          },
         });
 
         break;
-      case 'cancelled':
+      case "cancelled":
         break;
     }
 
@@ -234,17 +244,19 @@ function BookingHistory() {
   const handleReviewSubmit = async (review: Review) => {
     try {
       await bookingService.createReview(review);
-      
+
       setIsReviewModalOpen(false);
     } catch (error) {
-      console.error('Error submitting review:', error);
+      console.error("Error submitting review:", error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" onClick={() => setActiveDropdown(null)}>
+    <div
+      className="min-h-screen bg-gray-50"
+      onClick={() => setActiveDropdown(null)}
+    >
       <div className="max-w-7xl mx-auto">
-
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Filter className="w-5 h-5 text-gray-600" />
@@ -261,7 +273,9 @@ function BookingHistory() {
                 <input
                   type="date"
                   value={filters.dateFrom}
-                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                  onChange={(e) =>
+                    handleFilterChange("dateFrom", e.target.value)
+                  }
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -276,7 +290,7 @@ function BookingHistory() {
                 <input
                   type="date"
                   value={filters.dateTo}
-                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                  onChange={(e) => handleFilterChange("dateTo", e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -288,7 +302,7 @@ function BookingHistory() {
               </label>
               <select
                 value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Tất cả trạng thái</option>
@@ -314,7 +328,9 @@ function BookingHistory() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Hiển thị {startIndex + 1} - {Math.min(startIndex + itemsPerPage, filteredBookings.length)} của {filteredBookings.length} kết quả
+              Hiển thị {startIndex + 1} -{" "}
+              {Math.min(startIndex + itemsPerPage, filteredBookings.length)} của{" "}
+              {filteredBookings.length} kết quả
             </div>
           </div>
         </div>
@@ -350,7 +366,10 @@ function BookingHistory() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentBookings?.map((booking, index) => (
-                  <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={booking.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {startIndex + index + 1}
                     </td>
@@ -363,14 +382,22 @@ function BookingHistory() {
                       <div className="space-y-1">
                         {booking.rooms?.map((room, index) => (
                           <div key={index}>
-                            <div className="text-sm font-medium text-gray-900">{room.name}</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {room.name}
+                            </div>
                             <div className="text-sm text-gray-500 flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${room.type === 'Standard' ? 'bg-gray-100 text-gray-800' :
-                                room.type === 'Deluxe' ? 'bg-blue-100 text-blue-800' :
-                                  room.type === 'Premium' ? 'bg-purple-100 text-purple-800' :
-                                    'bg-yellow-100 text-yellow-800'
-                                }`}>
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${
+                                  room.type === "Standard"
+                                    ? "bg-gray-100 text-gray-800"
+                                    : room.type === "Deluxe"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : room.type === "Premium"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
                                 {room.type}
                               </span>
                             </div>
@@ -385,36 +412,48 @@ function BookingHistory() {
                       <div className="text-sm text-gray-900">
                         <div className="flex items-center gap-1 mb-1">
                           <Calendar className="w-3 h-3 text-green-600" />
-                          <span className="text-green-600">Nhận:</span> {formatDate(booking.checkIn)}
+                          <span className="text-green-600">Nhận:</span>{" "}
+                          {formatDate(booking.checkIn)}
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3 text-red-600" />
-                          <span className="text-red-600">Trả:</span> {formatDate(booking.checkOut)}
+                          <span className="text-red-600">Trả:</span>{" "}
+                          {formatDate(booking.checkOut)}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        <div className="font-medium text-lg">{formatCurrency(booking.totalAmount)}</div>
+                        <div className="font-medium text-lg">
+                          {formatCurrency(booking.totalAmount)}
+                        </div>
                         <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${booking.paidAmount >= booking.totalAmount
-                            ? 'bg-green-100 text-green-800'
-                            : booking.paidAmount > 0
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                            }`}>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              booking.paidAmount >= booking.totalAmount
+                                ? "bg-green-100 text-green-800"
+                                : booking.paidAmount > 0
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
                             {booking.paidAmount >= booking.totalAmount
-                              ? 'Đã thanh toán'
+                              ? "Đã thanh toán"
                               : booking.paidAmount > 0
-                                ? `Còn lại ${formatCurrency(booking.totalAmount - booking.paidAmount)}`
-                                : 'Chưa thanh toán'
-                            }
+                              ? `Còn lại ${formatCurrency(
+                                  booking.totalAmount - booking.paidAmount
+                                )}`
+                              : "Chưa thanh toán"}
                           </span>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[booking.status]}`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          statusColors[booking.status]
+                        }`}
+                      >
                         {statusLabels[booking.status]}
                       </span>
                       <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
@@ -427,7 +466,9 @@ function BookingHistory() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setActiveDropdown(activeDropdown === booking.id ? null : booking.id);
+                            setActiveDropdown(
+                              activeDropdown === booking.id ? null : booking.id
+                            );
                           }}
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                         >
@@ -435,22 +476,23 @@ function BookingHistory() {
                         </button>
                         {activeDropdown === booking.id && (
                           <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                            {getAvailableActions(booking)?.map((action, actionIndex) => (
-                              <button
-                                key={actionIndex}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  action.action();
-                                }}
-                                className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-50 transition-colors ${action.color}`}
-                              >
-                                <action.icon className="w-4 h-4" />
-                                {action.label}
-                              </button>
-                            ))}
+                            {getAvailableActions(booking)?.map(
+                              (action, actionIndex) => (
+                                <button
+                                  key={actionIndex}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    action.action();
+                                  }}
+                                  className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-50 transition-colors ${action.color}`}
+                                >
+                                  <action.icon className="w-4 h-4" />
+                                  {action.label}
+                                </button>
+                              )
+                            )}
                           </div>
                         )}
-
                       </div>
                     </td>
                   </tr>
@@ -465,14 +507,16 @@ function BookingHistory() {
           <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow-sm mt-4">
             <div className="flex flex-1 justify-between sm:hidden">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
               >
                 Trước
               </button>
               <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
                 className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
               >
@@ -482,35 +526,42 @@ function BookingHistory() {
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Trang <span className="font-medium">{currentPage}</span> của{' '}
+                  Trang <span className="font-medium">{currentPage}</span> của{" "}
                   <span className="font-medium">{totalPages}</span>
                 </p>
               </div>
               <div>
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     disabled={currentPage === 1}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)?.map(page => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === currentPage
-                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)?.map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          page === currentPage
+                            ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                            : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                         }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
 
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                   >

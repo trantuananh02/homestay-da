@@ -1,58 +1,114 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Building } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { homestayService } from '../services/homestayService';
-import { CreateHomestayRequest } from '../types';
+import React, { useState, useRef } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L, { LatLngExpression, Icon } from "leaflet";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, MapPin, Building } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { homestayService } from "../services/homestayService";
+import { CreateHomestayRequest } from "../types";
 
 const AddHomestay: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const [formData, setFormData] = useState<CreateHomestayRequest>({
-    name: '',
-    description: '',
-    address: '',
-    city: '',
-    district: '',
-    ward: '',
+    name: "",
+    description: "",
+    address: "",
+    city: "",
+    district: "",
+    ward: "",
     latitude: 0,
-    longitude: 0
+    longitude: 0,
   });
+
+  // Icon đỏ cho marker
+  const redIcon: Icon = new L.Icon({
+    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  });
+
+  // Ref cho input tìm kiếm
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Hàm tìm kiếm địa chỉ sử dụng Nominatim API
+  const handleSearch = async () => {
+    const query = searchRef.current?.value;
+    if (!query) return;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      query
+    )}`;
+    const res = await fetch(url);
+    const data: Array<{ lat: string; lon: string }> = await res.json();
+    if (data && data.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        latitude: parseFloat(data[0].lat),
+        longitude: parseFloat(data[0].lon),
+      }));
+    } else {
+      alert("Không tìm thấy địa chỉ!");
+    }
+  };
+
+  // Component chọn vị trí trên bản đồ
+  const LocationPicker = () => {
+    useMapEvents({
+      click(e: { latlng: { lat: number; lng: number } }) {
+        setFormData((prev: typeof formData) => ({
+          ...prev,
+          latitude: e.latlng.lat,
+          longitude: e.latlng.lng,
+        }));
+      },
+    });
+    return null;
+  };
 
   const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (field: keyof CreateHomestayRequest, value: any) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    field: keyof CreateHomestayRequest,
+    value: any
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleBack = () => {
-    navigate('/management');
+    navigate("/management");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.description || !formData.address || 
-        !formData.city || !formData.district || !formData.ward) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+
+    if (
+      !formData.name ||
+      !formData.description ||
+      !formData.address ||
+      !formData.city ||
+      !formData.district ||
+      !formData.ward
+    ) {
+      alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
       return;
     }
 
     if (formData.latitude === 0 || formData.longitude === 0) {
-      alert('Vui lòng nhập tọa độ địa lý!');
+      alert("Vui lòng nhập tọa độ địa lý!");
       return;
     }
 
     try {
       setLoading(true);
       await homestayService.createHomestay(formData);
-      navigate('/management');
+      navigate("/management");
     } catch (error) {
-      console.error('Error creating homestay:', error);
+      console.error("Error creating homestay:", error);
     } finally {
       setLoading(false);
     }
@@ -70,7 +126,9 @@ const AddHomestay: React.FC = () => {
         </button>
 
         <div className="bg-white rounded-xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Thêm homestay mới</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+            Thêm homestay mới
+          </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
@@ -79,7 +137,7 @@ const AddHomestay: React.FC = () => {
                 <Building className="h-5 w-5 mr-2" />
                 Thông tin cơ bản
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -88,7 +146,7 @@ const AddHomestay: React.FC = () => {
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Nhập tên homestay"
                     required
@@ -101,7 +159,9 @@ const AddHomestay: React.FC = () => {
                   </label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Mô tả chi tiết về homestay"
                     rows={3}
@@ -117,7 +177,7 @@ const AddHomestay: React.FC = () => {
                 <MapPin className="h-5 w-5 mr-2" />
                 Thông tin địa chỉ
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -126,7 +186,9 @@ const AddHomestay: React.FC = () => {
                   <input
                     type="text"
                     value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Số nhà, tên đường"
                     required
@@ -140,7 +202,7 @@ const AddHomestay: React.FC = () => {
                   <input
                     type="text"
                     value={formData.ward}
-                    onChange={(e) => handleInputChange('ward', e.target.value)}
+                    onChange={(e) => handleInputChange("ward", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Phường/Xã"
                     required
@@ -154,7 +216,9 @@ const AddHomestay: React.FC = () => {
                   <input
                     type="text"
                     value={formData.district}
-                    onChange={(e) => handleInputChange('district', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("district", e.target.value)
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Quận/Huyện"
                     required
@@ -168,7 +232,7 @@ const AddHomestay: React.FC = () => {
                   <input
                     type="text"
                     value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Tỉnh/Thành phố"
                     required
@@ -177,10 +241,11 @@ const AddHomestay: React.FC = () => {
               </div>
             </div>
 
-            {/* Coordinates */}
+            {/* Coordinates + Google Map */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Tọa độ địa lý</h2>
-              
+              <h2 className="text-xl font-semibold text-gray-900">
+                Tọa độ địa lý
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -190,7 +255,12 @@ const AddHomestay: React.FC = () => {
                     type="number"
                     step="any"
                     value={formData.latitude}
-                    onChange={(e) => handleInputChange('latitude', parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "latitude",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="10.762622"
                     required
@@ -199,7 +269,6 @@ const AddHomestay: React.FC = () => {
                     Ví dụ: 10.762622 (Hà Nội), 10.823099 (TP.HCM)
                   </p>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Kinh độ (Longitude) *
@@ -208,7 +277,12 @@ const AddHomestay: React.FC = () => {
                     type="number"
                     step="any"
                     value={formData.longitude}
-                    onChange={(e) => handleInputChange('longitude', parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "longitude",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="106.660172"
                     required
@@ -218,16 +292,52 @@ const AddHomestay: React.FC = () => {
                   </p>
                 </div>
               </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="text-sm font-medium text-blue-900 mb-2">Hướng dẫn lấy tọa độ:</h3>
-                <ol className="text-sm text-blue-800 space-y-1">
-                  <li>1. Truy cập <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="underline">Google Maps</a></li>
-                  <li>2. Tìm địa chỉ homestay của bạn</li>
-                  <li>3. Click chuột phải vào vị trí chính xác</li>
-                  <li>4. Copy tọa độ hiển thị (ví dụ: 10.762622, 106.660172)</li>
-                  <li>5. Nhập vào form bên trên</li>
-                </ol>
+              {/* OpenStreetMap + Tìm kiếm địa chỉ */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chọn vị trí trên bản đồ:
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    ref={searchRef}
+                    type="text"
+                    placeholder="Nhập địa chỉ để tìm kiếm..."
+                    className="p-2 border rounded w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded"
+                  >
+                    Tìm kiếm
+                  </button>
+                </div>
+                <div className="w-full h-[400px] rounded-lg overflow-hidden border border-gray-300">
+                  <MapContainer
+                    center={[
+                      formData.latitude || 21.028511,
+                      formData.longitude || 105.804817,
+                    ]}
+                    zoom={formData.latitude && formData.longitude ? 15 : 6}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution="© OpenStreetMap contributors"
+                    />
+                    <LocationPicker />
+                    {formData.latitude !== 0 && formData.longitude !== 0 && (
+                      <Marker
+                        position={[formData.latitude, formData.longitude]}
+                        icon={redIcon}
+                      />
+                    )}
+                  </MapContainer>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Click vào bản đồ để chọn vị trí, tọa độ sẽ tự động điền vào ô
+                  bên trên.
+                </p>
               </div>
             </div>
 
@@ -251,7 +361,7 @@ const AddHomestay: React.FC = () => {
                     Đang tạo...
                   </>
                 ) : (
-                  'Tạo Homestay'
+                  "Tạo Homestay"
                 )}
               </button>
             </div>
