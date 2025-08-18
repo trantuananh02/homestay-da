@@ -121,6 +121,9 @@ func RegisterHandlers(router *gin.Engine, serverCtx *svc.ServiceContext) {
 			roomLogic := logic.NewRoomLogic(ctx, serverCtx)
 			bookingLogic := logic.NewBookingLogic(ctx, serverCtx)
 
+			// Route thanh toán VNPAY cho khách thuê
+			guest.GET("/payment/vnpay", CreateVnpayPayment)
+
 			// Initialize handlers
 			homestayHandler := NewHomestayHandler(homestayLogic)
 			roomHandler := NewRoomHandler(roomLogic)
@@ -135,7 +138,7 @@ func RegisterHandlers(router *gin.Engine, serverCtx *svc.ServiceContext) {
 			guest.POST("/booking", bookingHandler.CreateGuestBooking)
 			guest.GET("/booking", bookingHandler.GetGuestBookings)
 			guest.PUT("/booking/:id/status", bookingHandler.UpdateStatusBooking)
-			
+            
 			guest.POST("/review", bookingHandler.CreateReview)
 		}
 	}
