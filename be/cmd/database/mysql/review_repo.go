@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"homestay-be/cmd/database/model"
 	"homestay-be/cmd/database/repo"
@@ -22,6 +23,11 @@ func NewReviewRepository(db *sqlx.DB) repo.ReviewRepository {
 
 // Create tạo review mới
 func (r *reviewRepository) Create(ctx context.Context, req *model.ReviewCreateRequest) (*model.Review, error) {
+	// Serialize images to JSON string
+	imageUrls := "[]"
+	if b, err := json.Marshal(req.ImageURLs); err == nil {
+		imageUrls = string(b)
+	}
 	query := `
 		INSERT INTO review (user_id, homestay_id, booking_id, rating, comment, image_urls)
 		VALUES ($1, $2, $3, $4, $5, $6)
@@ -29,7 +35,7 @@ func (r *reviewRepository) Create(ctx context.Context, req *model.ReviewCreateRe
 	`
 
 	var review model.Review
-	err := r.db.GetContext(ctx, &review, query, req.UserID, req.HomestayID, req.BookingID, req.Rating, req.Comment, req.ImageURLs)
+	err := r.db.GetContext(ctx, &review, query, req.UserID, req.HomestayID, req.BookingID, req.Rating, req.Comment, imageUrls)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create review: %w", err)
 	}
@@ -48,8 +54,21 @@ func (r *reviewRepository) GetByID(ctx context.Context, id int) (*model.Review, 
 		WHERE r.id = $1
 	`
 
-	var review model.Review
-	err := r.db.GetContext(ctx, &review, query, id)
+	type dbReview struct {
+		ID          int       `db:"id"`
+		UserID      int       `db:"user_id"`
+		HomestayID  int       `db:"homestay_id"`
+		BookingID   int       `db:"booking_id"`
+		Rating      int       `db:"rating"`
+		Comment     string    `db:"comment"`
+		ImageURLs   string    `db:"image_urls"`
+		CreatedAt   sql.NullTime `db:"created_at"`
+		UserName    string    `db:"user_name"`
+		HomestayName string   `db:"homestay_name"`
+	}
+
+	var dbRv dbReview
+	err := r.db.GetContext(ctx, &dbRv, query, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("review not found")
@@ -57,7 +76,27 @@ func (r *reviewRepository) GetByID(ctx context.Context, id int) (*model.Review, 
 		return nil, fmt.Errorf("failed to get review: %w", err)
 	}
 
-	return &review, nil
+	var imageUrls []string
+	if dbRv.ImageURLs != "" {
+		if err := json.Unmarshal([]byte(dbRv.ImageURLs), &imageUrls); err != nil {
+			imageUrls = []string{} // fallback nếu lỗi
+		}
+	}
+
+	review := &model.Review{
+		ID: dbRv.ID,
+		UserID: dbRv.UserID,
+		HomestayID: dbRv.HomestayID,
+		BookingID: dbRv.BookingID,
+		Rating: dbRv.Rating,
+		Comment: dbRv.Comment,
+		ImageURLs: imageUrls,
+		CreatedAt: dbRv.CreatedAt.Time,
+		UserName: dbRv.UserName,
+		HomestayName: dbRv.HomestayName,
+	}
+
+	return review, nil
 }
 
 // Update cập nhật thông tin review
@@ -81,8 +120,12 @@ func (r *reviewRepository) Update(ctx context.Context, id int, req *model.Review
 	}
 
 	if req.ImageURLs != nil {
+		imageUrls := "[]"
+		if b, err := json.Marshal(*req.ImageURLs); err == nil {
+			imageUrls = string(b)
+		}
 		setClauses = append(setClauses, fmt.Sprintf("image_urls = $%d", argIndex))
-		args = append(args, *req.ImageURLs)
+		args = append(args, imageUrls)
 		argIndex++
 	}
 

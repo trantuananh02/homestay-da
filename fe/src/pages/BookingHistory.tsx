@@ -242,12 +242,15 @@ function BookingHistory() {
   };
 
   const handleReviewSubmit = async (review: Review) => {
+    console.log("Review data gửi lên BE:", review);
     try {
       await bookingService.createReview(review);
-
       setIsReviewModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting review:", error);
+      if (error.response) {
+        console.log("Lỗi chi tiết từ backend:", error.response);
+      }
     }
   };
 
