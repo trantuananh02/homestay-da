@@ -190,13 +190,62 @@ func (r *reviewRepository) List(ctx context.Context, page, pageSize int) ([]*mod
 		LIMIT $1 OFFSET $2
 	`
 
-	var reviews []*model.Review
-	err = r.db.SelectContext(ctx, &reviews, query, pageSize, offset)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to list reviews: %w", err)
-	}
+	 type dbReview struct {
+		 ID           int       `db:"id"`
+		 UserID       int       `db:"user_id"`
+		 HomestayID   int       `db:"homestay_id"`
+		 BookingID    int       `db:"booking_id"`
+		 Rating       int       `db:"rating"`
+		 Comment      string    `db:"comment"`
+		 CreatedAt    sql.NullTime `db:"created_at"`
+		 ImageURLs    string    `db:"image_urls"`
+		 UserName     string    `db:"user_name"`
+		 HomestayName string    `db:"homestay_name"`
+	 }
 
-	return reviews, total, nil
+	 var dbReviews []dbReview
+	 err = r.db.SelectContext(ctx, &dbReviews, query, pageSize, offset)
+	 if err != nil {
+		 return nil, 0, fmt.Errorf("failed to list reviews: %w", err)
+	 }
+
+	 var reviews []*model.Review
+	 for _, dbRv := range dbReviews {
+		 var imageUrls []string
+		 if dbRv.ImageURLs != "" {
+			 var temp interface{}
+			 if err := json.Unmarshal([]byte(dbRv.ImageURLs), &temp); err == nil {
+				 switch v := temp.(type) {
+				 case []interface{}:
+					 for _, item := range v {
+						 switch s := item.(type) {
+						 case string:
+							 imageUrls = append(imageUrls, s)
+						 }
+					 }
+				 case string:
+					 var urls []string
+					 if err := json.Unmarshal([]byte(v), &urls); err == nil {
+						 imageUrls = urls
+					 }
+				 }
+			 }
+		 }
+		 reviews = append(reviews, &model.Review{
+			 ID: dbRv.ID,
+			 UserID: dbRv.UserID,
+			 HomestayID: dbRv.HomestayID,
+			 BookingID: dbRv.BookingID,
+			 Rating: dbRv.Rating,
+			 Comment: dbRv.Comment,
+			 ImageURLs: imageUrls,
+			 CreatedAt: dbRv.CreatedAt.Time,
+			 UserName: dbRv.UserName,
+			 HomestayName: dbRv.HomestayName,
+		 })
+	 }
+
+	 return reviews, total, nil
 }
 
 // Search tìm kiếm review
@@ -257,13 +306,62 @@ func (r *reviewRepository) Search(ctx context.Context, req *model.ReviewSearchRe
 	`, whereClause, argIndex, argIndex+1)
 	args = append(args, req.PageSize, offset)
 
-	var reviews []*model.Review
-	err = r.db.SelectContext(ctx, &reviews, query, args...)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to search reviews: %w", err)
-	}
+	 type dbReview struct {
+		 ID           int       `db:"id"`
+		 UserID       int       `db:"user_id"`
+		 HomestayID   int       `db:"homestay_id"`
+		 BookingID    int       `db:"booking_id"`
+		 Rating       int       `db:"rating"`
+		 Comment      string    `db:"comment"`
+		 CreatedAt    sql.NullTime `db:"created_at"`
+		 ImageURLs    string    `db:"image_urls"`
+		 UserName     string    `db:"user_name"`
+		 HomestayName string    `db:"homestay_name"`
+	 }
 
-	return reviews, total, nil
+	 var dbReviews []dbReview
+	 err = r.db.SelectContext(ctx, &dbReviews, query, args...)
+	 if err != nil {
+		 return nil, 0, fmt.Errorf("failed to search reviews: %w", err)
+	 }
+
+	 var reviews []*model.Review
+	 for _, dbRv := range dbReviews {
+		 var imageUrls []string
+		 if dbRv.ImageURLs != "" {
+			 var temp interface{}
+			 if err := json.Unmarshal([]byte(dbRv.ImageURLs), &temp); err == nil {
+				 switch v := temp.(type) {
+				 case []interface{}:
+					 for _, item := range v {
+						 switch s := item.(type) {
+						 case string:
+							 imageUrls = append(imageUrls, s)
+						 }
+					 }
+				 case string:
+					 var urls []string
+					 if err := json.Unmarshal([]byte(v), &urls); err == nil {
+						 imageUrls = urls
+					 }
+				 }
+			 }
+		 }
+		 reviews = append(reviews, &model.Review{
+			 ID: dbRv.ID,
+			 UserID: dbRv.UserID,
+			 HomestayID: dbRv.HomestayID,
+			 BookingID: dbRv.BookingID,
+			 Rating: dbRv.Rating,
+			 Comment: dbRv.Comment,
+			 ImageURLs: imageUrls,
+			 CreatedAt: dbRv.CreatedAt.Time,
+			 UserName: dbRv.UserName,
+			 HomestayName: dbRv.HomestayName,
+		 })
+	 }
+
+	 return reviews, total, nil
 }
 
 // GetByUserID lấy danh sách review theo user
@@ -289,13 +387,62 @@ func (r *reviewRepository) GetByUserID(ctx context.Context, userID int, page, pa
 		LIMIT $2 OFFSET $3
 	`
 
-	var reviews []*model.Review
-	err = r.db.SelectContext(ctx, &reviews, query, userID, pageSize, offset)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to get reviews by user: %w", err)
-	}
+	 type dbReview struct {
+		 ID           int       `db:"id"`
+		 UserID       int       `db:"user_id"`
+		 HomestayID   int       `db:"homestay_id"`
+		 BookingID    int       `db:"booking_id"`
+		 Rating       int       `db:"rating"`
+		 Comment      string    `db:"comment"`
+		 CreatedAt    sql.NullTime `db:"created_at"`
+		 ImageURLs    string    `db:"image_urls"`
+		 UserName     string    `db:"user_name"`
+		 HomestayName string    `db:"homestay_name"`
+	 }
 
-	return reviews, total, nil
+	 var dbReviews []dbReview
+	 err = r.db.SelectContext(ctx, &dbReviews, query, userID, pageSize, offset)
+	 if err != nil {
+		 return nil, 0, fmt.Errorf("failed to get reviews by user: %w", err)
+	 }
+
+	 var reviews []*model.Review
+	 for _, dbRv := range dbReviews {
+		 var imageUrls []string
+		 if dbRv.ImageURLs != "" {
+			 var temp interface{}
+			 if err := json.Unmarshal([]byte(dbRv.ImageURLs), &temp); err == nil {
+				 switch v := temp.(type) {
+				 case []interface{}:
+					 for _, item := range v {
+						 switch s := item.(type) {
+						 case string:
+							 imageUrls = append(imageUrls, s)
+						 }
+					 }
+				 case string:
+					 var urls []string
+					 if err := json.Unmarshal([]byte(v), &urls); err == nil {
+						 imageUrls = urls
+					 }
+				 }
+			 }
+		 }
+		 reviews = append(reviews, &model.Review{
+			 ID: dbRv.ID,
+			 UserID: dbRv.UserID,
+			 HomestayID: dbRv.HomestayID,
+			 BookingID: dbRv.BookingID,
+			 Rating: dbRv.Rating,
+			 Comment: dbRv.Comment,
+			 ImageURLs: imageUrls,
+			 CreatedAt: dbRv.CreatedAt.Time,
+			 UserName: dbRv.UserName,
+			 HomestayName: dbRv.HomestayName,
+		 })
+	 }
+
+	 return reviews, total, nil
 }
 
 // GetByHomestayID lấy danh sách review theo homestay

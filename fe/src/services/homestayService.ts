@@ -1,14 +1,31 @@
-// Chuyển đổi imageUrls về mảng URL thực tế
-export function parseImageUrls(imageUrls: string[]): string[] {
-  if (!imageUrls) return [];
-  if (imageUrls.length === 1 && imageUrls[0].startsWith('[')) {
+export function parseImageUrls(imageUrls: any): string[] {
+  if (!imageUrls || imageUrls.length === 0) return [];
+  // Nếu là mảng chứa chuỗi JSON
+  if (
+    imageUrls.length === 1 &&
+    typeof imageUrls[0] === "string" &&
+    imageUrls[0].startsWith("[")
+  ) {
     try {
-      return JSON.parse(imageUrls[0]);
+      const parsed = JSON.parse(imageUrls[0]);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(
+          (url) =>
+            typeof url === "string" && url && url !== "{}" && url !== "null"
+        );
+      }
+      return [];
     } catch {
       return [];
     }
   }
-  return imageUrls;
+  // Nếu là mảng url chuẩn
+  if (Array.isArray(imageUrls)) {
+    return imageUrls.filter(
+      (url) => typeof url === "string" && url && url !== "{}" && url !== "null"
+    );
+  }
+  return [];
 }
 import api from "./api";
 import { toastService } from "./toastService";

@@ -199,20 +199,21 @@ func (h *HomestayLogic) GetHomestayList(req *types.HomestayListRequest, hostID i
 		var totalReviews int
 		var rating float64
 
-		for _, review := range reviews {
-			reviewList = append(reviewList, types.Review{
-				ID:         review.ID,
-				GuestID:    review.UserID,
-				GuestName:  review.UserName,
-				HomestayID: review.HomestayID,
-				BookingID:  review.BookingID,
-				Rating:     review.Rating,
-				Comment:    review.Comment,
-				CreatedAt:  review.CreatedAt,
-			})
-			totalRating += review.Rating
-			totalReviews++
-		}
+		 for _, review := range reviews {
+			 reviewList = append(reviewList, types.Review{
+				 ID:         review.ID,
+				 GuestID:    review.UserID,
+				 GuestName:  review.UserName,
+				 HomestayID: review.HomestayID,
+				 BookingID:  review.BookingID,
+				 Rating:     review.Rating,
+				 Comment:    review.Comment,
+				 CreatedAt:  review.CreatedAt,
+				 ImageUrls:  review.ImageURLs,
+			 })
+			 totalRating += review.Rating
+			 totalReviews++
+		 }
 
 		if totalReviews > 0 {
 			rating = float64(totalRating) / float64(totalReviews)
@@ -573,20 +574,21 @@ func (h *HomestayLogic) GetPublicHomestayList(req *types.HomestayListRequest) (*
 		var totalReviews int
 		var rating float64
 
-		for _, review := range reviews {
-			reviewList = append(reviewList, types.Review{
-				ID:         review.ID,
-				GuestID:    review.UserID,
-				GuestName:  review.UserName,
-				HomestayID: review.HomestayID,
-				BookingID:  review.BookingID,
-				Rating:     review.Rating,
-				Comment:    review.Comment,
-				CreatedAt:  review.CreatedAt,
-			})
-			totalRating += review.Rating
-			totalReviews++
-		}
+		 for _, review := range reviews {
+			 reviewList = append(reviewList, types.Review{
+				 ID:         review.ID,
+				 GuestID:    review.UserID,
+				 GuestName:  review.UserName,
+				 HomestayID: review.HomestayID,
+				 BookingID:  review.BookingID,
+				 Rating:     review.Rating,
+				 Comment:    review.Comment,
+				 CreatedAt:  review.CreatedAt,
+				 ImageUrls:  review.ImageURLs,
+			 })
+			 totalRating += review.Rating
+			 totalReviews++
+		 }
 
 		if totalReviews > 0 {
 			rating = float64(totalRating) / float64(totalReviews)
@@ -686,20 +688,21 @@ func (h *HomestayLogic) GetPublicHomestayByID(homestayID int) (*types.HomestayDe
 	var totalReviews int
 	var rating float64
 
-	for _, review := range reviews {
-		reviewList = append(reviewList, types.Review{
-			ID:         review.ID,
-			GuestID:    review.UserID,
-			GuestName:  review.UserName,
-			HomestayID: review.HomestayID,
-			BookingID:  review.BookingID,
-			Rating:     review.Rating,
-			Comment:    review.Comment,
-			CreatedAt:  review.CreatedAt,
-		})
-		totalRating += review.Rating
-		totalReviews++
-	}
+	 for _, review := range reviews {
+		 reviewList = append(reviewList, types.Review{
+			 ID:         review.ID,
+			 GuestID:    review.UserID,
+			 GuestName:  review.UserName,
+			 HomestayID: review.HomestayID,
+			 BookingID:  review.BookingID,
+			 Rating:     review.Rating,
+			 Comment:    review.Comment,
+			 CreatedAt:  review.CreatedAt,
+			 ImageUrls:  review.ImageURLs,
+		 })
+		 totalRating += review.Rating
+		 totalReviews++
+	 }
 
 	if totalReviews > 0 {
 		rating = float64(totalRating) / float64(totalReviews)
@@ -786,20 +789,21 @@ func (h *HomestayLogic) GetTopHomestays(limit int) ([]types.Homestay, error) {
 		var totalReviews int
 		var rating float64
 
-		for _, review := range reviews {
-			reviewList = append(reviewList, types.Review{
-				ID:         review.ID,
-				GuestID:    review.UserID,
-				GuestName:  review.UserName,
-				HomestayID: review.HomestayID,
-				BookingID:  review.BookingID,
-				Rating:     review.Rating,
-				Comment:    review.Comment,
-				CreatedAt:  review.CreatedAt,
-			})
-			totalRating += review.Rating
-			totalReviews++
-		}
+		 for _, review := range reviews {
+			 reviewList = append(reviewList, types.Review{
+				 ID:         review.ID,
+				 GuestID:    review.UserID,
+				 GuestName:  review.UserName,
+				 HomestayID: review.HomestayID,
+				 BookingID:  review.BookingID,
+				 Rating:     review.Rating,
+				 Comment:    review.Comment,
+				 CreatedAt:  review.CreatedAt,
+				 ImageUrls:  review.ImageURLs,
+			 })
+			 totalRating += review.Rating
+			 totalReviews++
+		 }
 
 		if totalReviews > 0 {
 			rating = float64(totalRating) / float64(totalReviews)
