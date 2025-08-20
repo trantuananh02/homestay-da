@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, MapPin, DollarSign, Users, Calendar } from "lucide-react";
+import { Search, MapPin, Users, Calendar } from "lucide-react";
 import { HomestayListRequest } from "../../types";
 
 interface SearchFiltersProps {

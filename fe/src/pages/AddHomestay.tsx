@@ -1,16 +1,14 @@
 import React, { useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L, { LatLngExpression, Icon } from "leaflet";
+import L, { Icon } from "leaflet";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Building } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
 import { homestayService } from "../services/homestayService";
 import { CreateHomestayRequest } from "../types";
 
 const AddHomestay: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [formData, setFormData] = useState<CreateHomestayRequest>({
     name: "",

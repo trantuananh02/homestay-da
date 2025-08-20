@@ -386,10 +386,19 @@ const EditHomestay: React.FC = () => {
                 <div className="w-full h-[400px] rounded-lg overflow-hidden border border-gray-300">
                   <MapContainer
                     center={[
-                      formData.latitude || 21.028511,
-                      formData.longitude || 105.804817,
+                      typeof formData.latitude === "number"
+                        ? formData.latitude
+                        : 21.028511,
+                      typeof formData.longitude === "number"
+                        ? formData.longitude
+                        : 105.804817,
                     ]}
-                    zoom={formData.latitude && formData.longitude ? 15 : 6}
+                    zoom={
+                      typeof formData.latitude === "number" &&
+                      typeof formData.longitude === "number"
+                        ? 15
+                        : 6
+                    }
                     style={{ width: "100%", height: "100%" }}
                   >
                     <TileLayer
@@ -399,7 +408,14 @@ const EditHomestay: React.FC = () => {
                     <LocationPicker />
                     {formData.latitude !== 0 && formData.longitude !== 0 && (
                       <Marker
-                        position={[formData.latitude, formData.longitude]}
+                        position={[
+                          typeof formData.latitude === "number"
+                            ? formData.latitude
+                            : 0,
+                          typeof formData.longitude === "number"
+                            ? formData.longitude
+                            : 0,
+                        ]}
                         icon={redIcon}
                       />
                     )}

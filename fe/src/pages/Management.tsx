@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { homestayService } from "../services/homestayService";
-import { bookingService } from "../services/bookingService";
-import { Homestay, HomestayStats, Booking } from "../types";
+import { Homestay, HomestayStats } from "../types";
 import BookingList from "./BookingList";
 import { useConfirm } from "../components/ConfirmDialog";
 import PaymentList from "./PaymentList";
@@ -29,8 +28,8 @@ const Management: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [bookingLoading, setBookingLoading] = useState(false);
+  // const [bookings, setBookings] = useState<Booking[]>([]);
+  // const [bookingLoading, setBookingLoading] = useState(false);
 
   // Load data
   const loadData = async () => {
@@ -62,20 +61,8 @@ const Management: React.FC = () => {
   }, [user]);
 
   const loadBookings = async () => {
-    setBookingLoading(true);
-    try {
-      let allBookings: Booking[] = [];
-      for (const homestay of homestays) {
-        const res = await bookingService.filterBookings(homestay.id.toString());
-        allBookings = allBookings.concat(res);
-      }
-
-      setBookings(allBookings);
-    } catch (error) {
-      setBookings([]);
-    } finally {
-      setBookingLoading(false);
-    }
+    // Nếu cần dùng bookings, hãy sửa lại logic cho đúng kiểu trả về của filterBookings
+    // Hiện tại không dùng bookings nên có thể bỏ qua đoạn này
   };
 
   useEffect(() => {
@@ -98,7 +85,7 @@ const Management: React.FC = () => {
   };
 
   const handleDeleteHomestay = async (id: number) => {
-    var result = await confirm({
+    const result = await confirm({
       title: "Xác nhận xóa homestay",
       description: `Bạn có chắc chắn muốn xóa homestay này?`,
       confirmText: "Xóa",
@@ -117,7 +104,7 @@ const Management: React.FC = () => {
   const handleToggleStatus = async (homestay: Homestay) => {
     const action = homestay.status === "active" ? "tắt" : "bật";
 
-    var result = await confirm({
+    const result = await confirm({
       title: `Xác nhận ${action} homestay`,
       description: `Bạn có chắc chắn muốn ${action} homestay "${homestay.name}"?`,
       confirmText: action === "bật" ? "Bật" : "Tắt",

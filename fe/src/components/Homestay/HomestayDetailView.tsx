@@ -34,13 +34,6 @@ function HomestayDetailView() {
     fetchHomestay();
   }, [id]);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
-
   const handleBookingClick = (id: number, roomId?: number) => {
     const url = roomId
       ? `/guest/homestay/${id}/booking?roomId=${roomId}`

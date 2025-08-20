@@ -20,7 +20,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "guest" as "guest",
+    role: "guest",
     agreeTerms: false,
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -79,7 +79,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
     try {
       // Prepare data for API (remove confirmPassword and agreeTerms)
-      const { confirmPassword, agreeTerms, ...registerData } = formData;
+      const registerData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: "guest" as const,
+      };
 
       // Only include phone if it's not empty
       if (!registerData.phone) {

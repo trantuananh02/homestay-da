@@ -1,37 +1,37 @@
-import { useEffect, useState } from 'react';
-import { Calendar, CreditCard, Banknote, Filter, X } from 'lucide-react';
-import { Payment } from '../types';
-import { bookingService } from '../services/bookingService';
+import { useEffect, useState } from "react";
+import { Calendar, CreditCard, Banknote, Filter } from "lucide-react";
+import { Payment } from "../types";
+import { bookingService } from "../services/bookingService";
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
   }).format(amount);
 }
 
 function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
+  return new Date(date).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
 }
 
-const methodLabels: Record<Payment['paymentMethod'], string> = {
-  "Tiền mặt": 'Tiền mặt',
-  "Thẻ tín dụng": 'Thẻ tín dụng',
-  "Chuyển khoản": 'Chuyển khoản',
-  "Momo": 'Momo',
+const methodLabels: Record<Payment["paymentMethod"], string> = {
+  "Tiền mặt": "Tiền mặt",
+  "Thẻ tín dụng": "Thẻ tín dụng",
+  "Chuyển khoản": "Chuyển khoản",
+  Momo: "Momo",
 };
 
 function PaymentList() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [filters, setFilters] = useState({
-    bookingCode: '',
-    method: '',
-    dateFrom: '',
-    dateTo: '',
+    bookingCode: "",
+    method: "",
+    dateFrom: "",
+    dateTo: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -44,16 +44,17 @@ function PaymentList() {
         pageSize: itemsPerPage,
       });
 
-      console.log('Payments loaded:', response);
+      console.log("Payments loaded:", response);
 
       setPayments(response.payments || []);
     };
     loadPayments();
   }, [filters, currentPage]);
 
-  const totalPages = Math.ceil(payments?.length  / itemsPerPage);
+  const totalPages = Math.ceil(payments?.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentPayments = payments?.slice(startIndex, startIndex + itemsPerPage) || [];
+  const currentPayments =
+    payments?.slice(startIndex, startIndex + itemsPerPage) || [];
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -62,10 +63,10 @@ function PaymentList() {
 
   const clearFilters = () => {
     setFilters({
-      bookingCode: '',
-      method: '',
-      dateFrom: '',
-      dateTo: '',
+      bookingCode: "",
+      method: "",
+      dateFrom: "",
+      dateTo: "",
     });
     setCurrentPage(1);
   };
@@ -84,29 +85,33 @@ function PaymentList() {
               type="text"
               placeholder="Mã đặt phòng..."
               value={filters.bookingCode}
-              onChange={(e) => handleFilterChange('bookingCode', e.target.value)}
+              onChange={(e) =>
+                handleFilterChange("bookingCode", e.target.value)
+              }
               className="border-gray-300 rounded-lg px-4 py-2 border"
             />
             <select
               value={filters.method}
-              onChange={(e) => handleFilterChange('method', e.target.value)}
+              onChange={(e) => handleFilterChange("method", e.target.value)}
               className="border-gray-300 rounded-lg px-4 py-2 border"
             >
               <option value="">Phương thức</option>
               {Object.keys(methodLabels).map((m) => (
-                <option key={m} value={m}>{methodLabels[m as keyof typeof methodLabels]}</option>
+                <option key={m} value={m}>
+                  {methodLabels[m as keyof typeof methodLabels]}
+                </option>
               ))}
             </select>
             <input
               type="date"
               value={filters.dateFrom}
-              onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+              onChange={(e) => handleFilterChange("dateFrom", e.target.value)}
               className="border-gray-300 rounded-lg px-4 py-2 border"
             />
             <input
               type="date"
               value={filters.dateTo}
-              onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+              onChange={(e) => handleFilterChange("dateTo", e.target.value)}
               className="border-gray-300 rounded-lg px-4 py-2 border"
             />
             <button
@@ -123,20 +128,34 @@ function PaymentList() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">STT</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                  STT
+                </th>
                 {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Mã thanh toán</th> */}
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Mã đặt phòng</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Phương thức</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ngày thanh toán</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                  Mã đặt phòng
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                  Số tiền
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                  Phương thức
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                  Ngày thanh toán
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100 ">
               {currentPayments.map((payment, idx) => (
                 <tr key={payment.id} className="hover:bg-gray-50 transition">
-                  <td className="px-4 py-3 text-sm text-gray-900">{startIndex + idx + 1}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    {startIndex + idx + 1}
+                  </td>
                   {/* <td className="px-4 py-3 text-sm font-medium text-blue-600 bg-blue-50 rounded">{payment.id}</td> */}
-                  <td className="px-4 py-3 text-sm text-gray-700">{payment.bookingCode}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {payment.bookingCode}
+                  </td>
                   <td className="px-4 py-3 text-sm font-semibold text-gray-800">
                     <div className="flex items-center gap-1">
                       <Banknote className="w-4 h-4 text-gray-400" />
@@ -157,13 +176,17 @@ function PaymentList() {
                   </td>
                 </tr>
               ))}
-              {!currentPayments || currentPayments?.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center text-gray-500 py-6 text-sm">
-                    Không có dữ liệu thanh toán.
-                  </td>
-                </tr>
-              )}
+              {!currentPayments ||
+                (currentPayments?.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="text-center text-gray-500 py-6 text-sm"
+                    >
+                      Không có dữ liệu thanh toán.
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -179,18 +202,26 @@ function PaymentList() {
               >
                 Trước
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-1 border rounded ${page === currentPage ? 'bg-blue-100 text-blue-700 font-semibold' : ''}`}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-1 border rounded ${
+                      page === currentPage
+                        ? "bg-blue-100 text-blue-700 font-semibold"
+                        : ""
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
               <button
                 disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
                 Sau

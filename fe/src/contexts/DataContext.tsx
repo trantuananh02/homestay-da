@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Homestay, Booking, Review, Room } from '../types';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { Homestay, Booking, Review, Room } from "../types";
 
 interface DataContextType {
   homestays: Homestay[];
@@ -17,7 +17,11 @@ interface DataContextType {
   addReview: (review: Review) => void;
   getHomestayById: (id: number | string) => Homestay | undefined;
   getRoomsByHomestayId: (homestayId: number | string) => Room[];
-  getAvailableRooms: (homestayId: number | string, checkIn: string, checkOut: string) => Room[];
+  getAvailableRooms: (
+    homestayId: number | string,
+    checkIn: string,
+    checkOut: string
+  ) => Room[];
   getRoomById: (id: number | string) => Room | undefined;
   getBookingsByHomestayId: (homestayId: number | string) => Booking[];
   getBookingsByUserId: (userId: number | string) => Booking[];
@@ -31,7 +35,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const useData = () => {
   const context = useContext(DataContext);
   if (context === undefined) {
-    throw new Error('useData must be used within a DataProvider');
+    throw new Error("useData must be used within a DataProvider");
   }
   return context;
 };
@@ -47,134 +51,151 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [rooms, setRooms] = useState<Room[]>([]);
 
   const addHomestay = (homestay: Homestay) => {
-    setHomestays(prev => [...prev, homestay]);
+    setHomestays((prev) => [...prev, homestay]);
   };
 
-  const updateHomestay = (id: number | string, updatedHomestay: Partial<Homestay>) => {
-    setHomestays(prev => 
-      prev.map(homestay => 
+  const updateHomestay = (
+    id: number | string,
+    updatedHomestay: Partial<Homestay>
+  ) => {
+    setHomestays((prev) =>
+      prev.map((homestay) =>
         homestay.id === id ? { ...homestay, ...updatedHomestay } : homestay
       )
     );
   };
 
   const deleteHomestay = (id: number | string) => {
-    setHomestays(prev => prev.filter(homestay => homestay.id !== id));
-    setRooms(prev => prev.filter(room => room.homestayId !== id));
+    setHomestays((prev) => prev.filter((homestay) => homestay.id !== id));
+    setRooms((prev) => prev.filter((room) => room.homestayId !== id));
   };
 
   const addRoom = (room: Room) => {
-    setRooms(prev => [...prev, room]);
+    setRooms((prev) => [...prev, room]);
   };
 
   const updateRoom = (id: number | string, updatedRoom: Partial<Room>) => {
-    setRooms(prev => 
-      prev.map(room => 
-        room.id === id ? { ...room, ...updatedRoom } : room
-      )
+    setRooms((prev) =>
+      prev.map((room) => (room.id === id ? { ...room, ...updatedRoom } : room))
     );
   };
 
   const deleteRoom = (id: number | string) => {
-    setRooms(prev => prev.filter(room => room.id !== id));
+    setRooms((prev) => prev.filter((room) => room.id !== id));
   };
 
   const addBooking = (booking: Booking) => {
-    setBookings(prev => [...prev, booking]);
+    setBookings((prev) => [...prev, booking]);
   };
 
   const updateBooking = (id: string, updatedBooking: Partial<Booking>) => {
-    setBookings(prev => 
-      prev.map(booking => booking
+    setBookings((prev) =>
+      prev.map((booking) =>
+        booking.id === id ? { ...booking, ...updatedBooking } : booking
       )
     );
   };
 
   const addReview = (review: Review) => {
-    setReviews(prev => [...prev, review]);
+    setReviews((prev) => [...prev, review]);
     updateHomestayRating(review.homestayId);
   };
 
   const updateHomestayRating = (homestayId: number | string) => {
-    const homestayReviews = reviews.filter(r => r.homestayId === homestayId);
+    const homestayReviews = reviews.filter((r) => r.homestayId === homestayId);
     if (homestayReviews.length === 0) return;
 
-    const averageRating = homestayReviews.reduce((sum, review) => sum + review.rating, 0) / homestayReviews.length;
-    const reviewCount = homestayReviews.length;
+    const averageRating =
+      homestayReviews.reduce((sum, review) => sum + review.rating, 0) /
+      homestayReviews.length;
 
-    setHomestays(prev => 
-      prev.map(homestay => 
-        homestay.id === homestayId 
-          ? { ...homestay, rating: Math.round(averageRating * 10) / 10, reviews: reviewCount }
+    setHomestays((prev) =>
+      prev.map((homestay) =>
+        homestay.id === homestayId
+          ? { ...homestay, rating: Math.round(averageRating * 10) / 10 }
           : homestay
       )
     );
   };
 
   const getHomestayById = (id: number | string) => {
-    return homestays.find(homestay => homestay.id === id);
+    return homestays.find((homestay) => homestay.id === id);
   };
 
   const getRoomsByHomestayId = (homestayId: number | string) => {
-    return rooms.filter(room => room.homestayId === homestayId);
+    return rooms.filter((room) => room.homestayId === homestayId);
   };
 
-  const getAvailableRooms = (homestayId: number | string, checkIn: string, checkOut: string) => {
+  const getAvailableRooms = (
+    homestayId: number | string,
+    checkIn: string,
+    checkOut: string
+  ) => {
     const homestayRooms = getRoomsByHomestayId(homestayId);
-    const conflictingBookings = bookings
+    // Giả sử bookings có trường roomId, checkIn, checkOut
+    const bookedRoomIds = bookings
+      .filter(
+        (booking) =>
+          booking.homestayId === homestayId &&
+          new Date(booking.checkIn) <= new Date(checkOut) &&
+          new Date(booking.checkOut) >= new Date(checkIn)
+      )
+      .map((booking) => booking.roomId);
 
-    const bookedRoomIds = conflictingBookings
-
-    return homestayRooms.filter(room => 
-      room.status === 'available' && !bookedRoomIds
+    return homestayRooms.filter(
+      (room) => room.status === "available" && !bookedRoomIds.includes(room.id)
     );
   };
 
   const getRoomById = (id: number | string) => {
-    return rooms.find(room => room.id === id);
+    return rooms.find((room) => room.id === id);
   };
 
   const getBookingsByHomestayId = (homestayId: number | string) => {
-    return bookings.filter(booking => booking);
+    return bookings.filter((booking) => booking.homestayId === homestayId);
   };
 
   const getBookingsByUserId = (userId: number | string) => {
-    return bookings.filter(booking => booking);
+    return bookings.filter((booking) => booking.userId === userId);
   };
 
   const getReviewsByHomestayId = (homestayId: number | string) => {
-    return reviews.filter(review => review.homestayId === homestayId);
+    return reviews.filter((review) => review.homestayId === homestayId);
   };
 
   const getReviewByBookingId = (bookingId: string) => {
-    return reviews.find(review => review.bookingId === bookingId);
+    return reviews.find(
+      (review) => String(review.bookingId) === String(bookingId)
+    );
   };
 
   return (
-    <DataContext.Provider value={{
-      homestays,
-      bookings,
-      reviews,
-      rooms,
-      addHomestay,
-      updateHomestay,
-      deleteHomestay,
-      addRoom,
-      updateRoom,
-      deleteRoom,
-      addBooking,
-      updateBooking,
-      addReview,
-      getHomestayById,
-      getRoomsByHomestayId,
-      getAvailableRooms,
-      getRoomById,
-      getBookingsByHomestayId,
-      getBookingsByUserId,
-      getReviewsByHomestayId,
-      getReviewByBookingId,
-      updateHomestayRating
-    }}>
+    <DataContext.Provider
+      value={{
+        homestays,
+        bookings,
+        reviews,
+        rooms,
+        addHomestay,
+        updateHomestay,
+        deleteHomestay,
+        addRoom,
+        updateRoom,
+        deleteRoom,
+        addBooking,
+        updateBooking,
+        addReview,
+        getHomestayById,
+        getRoomsByHomestayId,
+        getAvailableRooms,
+        getRoomById,
+        getBookingsByHomestayId,
+        getBookingsByUserId,
+        getReviewsByHomestayId,
+        getReviewByBookingId,
+        updateHomestayRating,
+      }}
+    >
       {children}
     </DataContext.Provider>
   );

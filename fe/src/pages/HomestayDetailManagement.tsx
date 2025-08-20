@@ -21,7 +21,6 @@ import { useConfirm } from "../components/ConfirmDialog";
 import NewBookingModal from "../components/Booking/NewBookingModal";
 import DEFAULT_ROOM_IMAGE from "../asset/default-image.jpg";
 import AddRoomModal from "../components/Room/AddRoomModal";
-import ViewRoomModal from "../components/Room/ViewRoomModal";
 import { bookingService } from "../services/bookingService";
 
 const HomestayDetailManagement: React.FC = () => {
@@ -33,7 +32,6 @@ const HomestayDetailManagement: React.FC = () => {
 
   const [showNewBookingForm, setShowNewBookingForm] = useState(false);
   const [showAddRoomModal, setShowAddRoomModal] = useState(false);
-  const [showEditRoomModal, setShowEditRoomModal] = useState(false);
   const [roomData, setRoomData] = useState<Room | null>(null);
   const [isEdit, setIsEdit] = useState(false);
   const [action, setAction] = useState<"add" | "edit" | "view">("add");
@@ -199,7 +197,7 @@ const HomestayDetailManagement: React.FC = () => {
   const handleDeleteHomestay = async () => {
     if (!homestay) return;
 
-    var result = await confirm({
+    const result = await confirm({
       title: "Xác nhận xóa homestay",
       description: `Bạn có chắc chắn muốn xóa homestay "${homestay.name}"?`,
       confirmText: "Xóa",
@@ -254,6 +252,17 @@ const HomestayDetailManagement: React.FC = () => {
     bookingService.createBooking({
       ...bookingData,
       homestayId: homestayId,
+      nights:
+        bookingData.checkIn && bookingData.checkOut
+          ? Math.max(
+              1,
+              Math.ceil(
+                (new Date(bookingData.checkOut).getTime() -
+                  new Date(bookingData.checkIn).getTime()) /
+                  (1000 * 60 * 60 * 24)
+              )
+            )
+          : 1,
     });
   };
 

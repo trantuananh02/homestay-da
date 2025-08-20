@@ -4,10 +4,12 @@ import { AiOutlineMail } from "react-icons/ai";
 interface VerifyEmailPopupProps {
   email: string;
   onClose: () => void;
-  onResend?: () => void;
 }
 
-const VerifyEmailPopup: React.FC<VerifyEmailPopupProps> = ({ email, onClose, onResend }) => {
+const VerifyEmailPopup: React.FC<VerifyEmailPopupProps> = ({
+  email,
+  onClose,
+}) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center animate-fadeIn">
@@ -24,7 +26,8 @@ const VerifyEmailPopup: React.FC<VerifyEmailPopupProps> = ({ email, onClose, onR
           <span className="font-semibold text-gray-900">{email}</span>
         </p>
         <p className="text-gray-500 text-sm mt-2">
-          Vui lòng kiểm tra hộp thư của bạn và nhấn vào liên kết để kích hoạt tài khoản.
+          Vui lòng kiểm tra hộp thư của bạn và nhấn vào liên kết để kích hoạt
+          tài khoản.
         </p>
 
         {/* Buttons */}
@@ -36,13 +39,7 @@ const VerifyEmailPopup: React.FC<VerifyEmailPopupProps> = ({ email, onClose, onR
             Đã hiểu
           </button>
           {/* {onResend && (
-            <button
-              onClick={onResend}
-              className="text-emerald-600 text-sm hover:underline"
-            >
-              Gửi lại email
-            </button>
-          )} */}
+  {/* Nút gửi lại email đã bị xoá do không sử dụng */}
         </div>
       </div>
     </div>
