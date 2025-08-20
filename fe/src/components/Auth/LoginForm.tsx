@@ -19,7 +19,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [localErrors, setLocalErrors] = useState<any>({});
+  const [localErrors, setLocalErrors] = useState<{ [key: string]: string }>({});
 
   // Clear error when component mounts or when switching modes
   useEffect(() => {
@@ -27,7 +27,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   }, [clearError]);
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: { [key: string]: string } = {};
 
     if (!formData.email) {
       newErrors.email = "Email là bắt buộc";
@@ -61,16 +61,16 @@ const LoginForm: React.FC<LoginFormProps> = ({
       } else {
         navigate("/");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Error is handled by AuthContext and toastService
       console.error("Login error:", error);
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (localErrors[field]) {
-      setLocalErrors((prev: any) => ({ ...prev, [field]: "" }));
+      setLocalErrors((prev) => ({ ...prev, [field]: "" }));
     }
     // Clear auth error when user starts typing
     if (error) {

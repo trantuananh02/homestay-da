@@ -136,7 +136,7 @@ const HomestayDetailManagement: React.FC = () => {
     setShowAddRoomModal(false);
   };
 
-  const handleAddRoomSubmit = async (room: any) => {
+  const handleAddRoomSubmit = async (room: Record<string, unknown>) => {
     if (action === "edit" && !roomData) return;
 
     if (action === "edit") {
@@ -731,7 +731,7 @@ const HomestayDetailManagement: React.FC = () => {
                           <span className="font-medium">{review.rating}</span>
                         </div>
                         <p className="text-gray-700">{review.comment}</p>
-                        
+
                         {/* Review Images */}
                         {review.imageUrls && review.imageUrls.length > 0 && (
                           <div className="mt-3">
@@ -742,13 +742,15 @@ const HomestayDetailManagement: React.FC = () => {
                                   src={imageUrl}
                                   alt={`Review image ${imgIndex + 1}`}
                                   className="w-16 h-16 object-cover rounded-lg border border-gray-200 hover:border-emerald-300 transition-colors cursor-pointer"
-                                  onClick={() => window.open(imageUrl, '_blank')}
+                                  onClick={() =>
+                                    window.open(imageUrl, "_blank")
+                                  }
                                 />
                               ))}
                             </div>
                           </div>
                         )}
-                        
+
                         <p className="text-sm text-gray-500 mt-2">
                           Bởi {review.guestName} vào{" "}
                           {new Date(

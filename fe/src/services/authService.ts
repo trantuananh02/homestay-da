@@ -49,13 +49,21 @@ export const authService = {
       const response = await api.post("/api/auth/login", credentials);
       toastService.showApiSuccess(response);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toastService.showApiError(error);
-      throw new Error(
-        error.response?.data?.result?.message ||
-          error.response?.data?.message ||
-          "Đăng nhập thất bại"
-      );
+      let message = "Đăng nhập thất bại";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const errObj = error as {
+          response?: {
+            data?: { result?: { message?: string }; message?: string };
+          };
+        };
+        message =
+          errObj.response?.data?.result?.message ||
+          errObj.response?.data?.message ||
+          message;
+      }
+      throw new Error(message);
     }
   },
 
@@ -65,13 +73,21 @@ export const authService = {
       const response = await api.post("/api/auth/register", userData);
       toastService.showApiSuccess(response);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toastService.showApiError(error);
-      throw new Error(
-        error.response?.data?.result?.message ||
-          error.response?.data?.message ||
-          "Đăng ký thất bại"
-      );
+      let message = "Đăng ký thất bại";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const errObj = error as {
+          response?: {
+            data?: { result?: { message?: string }; message?: string };
+          };
+        };
+        message =
+          errObj.response?.data?.result?.message ||
+          errObj.response?.data?.message ||
+          message;
+      }
+      throw new Error(message);
     }
   },
 
@@ -80,13 +96,21 @@ export const authService = {
     try {
       const response = await api.get("/api/auth/profile");
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toastService.showApiError(error);
-      throw new Error(
-        error.response?.data?.result?.message ||
-          error.response?.data?.message ||
-          "Không thể lấy thông tin profile"
-      );
+      let message = "Không thể lấy thông tin profile";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const errObj = error as {
+          response?: {
+            data?: { result?: { message?: string }; message?: string };
+          };
+        };
+        message =
+          errObj.response?.data?.result?.message ||
+          errObj.response?.data?.message ||
+          message;
+      }
+      throw new Error(message);
     }
   },
 
@@ -101,12 +125,20 @@ export const authService = {
       toastService.showApiSuccess(response);
 
       return response.data;
-    } catch (error: any) {
-      throw new Error(
-        error.response?.data?.result?.message ||
-          error.response?.data?.message ||
-          "Cập nhật thông tin thất bại"
-      );
+    } catch (error: unknown) {
+      let message = "Cập nhật thông tin thất bại";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const errObj = error as {
+          response?: {
+            data?: { result?: { message?: string }; message?: string };
+          };
+        };
+        message =
+          errObj.response?.data?.result?.message ||
+          errObj.response?.data?.message ||
+          message;
+      }
+      throw new Error(message);
     }
   },
 
@@ -115,7 +147,7 @@ export const authService = {
     try {
       await api.post("/api/auth/logout");
       toastService.success("Đăng xuất thành công");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Logout error:", error);
       toastService.showApiError(error);
     } finally {
@@ -133,13 +165,21 @@ export const authService = {
       toastService.showApiSuccess(response);
 
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toastService.showApiError(error);
-      throw new Error(
-        error.response?.data?.result?.message ||
-          error.response?.data?.message ||
-          "Xác thực email thất bại"
-      );
+      let message = "Xác thực email thất bại";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const errObj = error as {
+          response?: {
+            data?: { result?: { message?: string }; message?: string };
+          };
+        };
+        message =
+          errObj.response?.data?.result?.message ||
+          errObj.response?.data?.message ||
+          message;
+      }
+      throw new Error(message);
     }
   },
 
@@ -164,7 +204,7 @@ export const authService = {
   },
 
   // Get user from localStorage
-  getUser(): any {
+  getUser(): import("../types").User | null {
     const userStr = localStorage.getItem("user");
     return userStr ? JSON.parse(userStr) : null;
   },

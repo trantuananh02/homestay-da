@@ -25,7 +25,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [localErrors, setLocalErrors] = useState<any>({});
+  const [localErrors, setLocalErrors] = useState<{ [key: string]: string }>({});
 
   // Clear error when component mounts or when switching modes
   useEffect(() => {
@@ -33,7 +33,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   }, [clearError]);
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: { [key: string]: string } = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "Họ tên là bắt buộc";
@@ -83,7 +83,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
       // Only include phone if it's not empty
       if (!registerData.phone) {
-        delete (registerData as any).phone;
+        delete (registerData as { phone?: string }).phone;
       }
 
       await register(registerData);
@@ -91,16 +91,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
       // Redirect to home page for guest users
       navigate("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Error is handled by AuthContext and toastService
       console.error("Register error:", error);
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (localErrors[field]) {
-      setLocalErrors((prev: any) => ({ ...prev, [field]: "" }));
+      setLocalErrors((prev) => ({ ...prev, [field]: "" }));
     }
     // Clear auth error when user starts typing
     if (error) {

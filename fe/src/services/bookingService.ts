@@ -1,41 +1,51 @@
 import api from "./api";
 import { toastService } from "./toastService";
 
+import { Booking, Review, Payment } from "../types";
+
 export const bookingService = {
   // Lọc danh sách booking (filter)
-  filterBookings: async (params: any): Promise<any> => {
+  filterBookings: async (
+    params: Record<string, unknown>
+  ): Promise<{ bookings: Booking[] }> => {
     const response = await api.get("/api/host/booking", { params });
     return response.data;
   },
 
   // Lấy danh sách booking của khách
-  getGuestBookings: async (params: any): Promise<any> => {
+  getGuestBookings: async (
+    params: Record<string, unknown>
+  ): Promise<{ bookings: Booking[] }> => {
     const response = await api.get(`/api/guest/booking`, { params });
     return response.data;
   },
 
   // Tạo booking mới
-  createBooking: async (bookingData: any): Promise<any> => {
+  createBooking: async (
+    bookingData: Omit<Booking, "id" | "bookingCode" | "status" | "bookingDate">
+  ): Promise<Booking> => {
     const response = await api.post("/api/host/booking", bookingData);
     toastService.success("Tạo booking thành công");
     return response.data;
   },
 
   // Tạo booking cho khách
-  createGuestBooking: async (bookingData: any): Promise<any> => {
+  createGuestBooking: async (
+    bookingData: Omit<Booking, "id" | "bookingCode" | "status" | "bookingDate">
+  ): Promise<Booking> => {
     const response = await api.post("/api/guest/booking", bookingData);
     toastService.success("Tạo booking thành công");
     return response.data;
   },
 
   // Lấy chi tiết booking
-  getBookingDetail: async (id: number): Promise<any> => {
+  getBookingDetail: async (id: number): Promise<Booking> => {
     const response = await api.get(`/api/booking/${id}`);
     return response.data;
   },
 
   // Cập nhật trạng thái booking
-  updateBookingStatus: async (id: number, status: string): Promise<any> => {
+  updateBookingStatus: async (id: number, status: string): Promise<Booking> => {
     const response = await api.put(`/api/host/booking/${id}/status`, {
       status,
     });
@@ -51,7 +61,7 @@ export const bookingService = {
   updateGuestBookingStatus: async (
     id: number,
     status: string
-  ): Promise<any> => {
+  ): Promise<Booking> => {
     const response = await api.put(`/api/guest/booking/${id}/status`, {
       status,
     });
@@ -64,7 +74,7 @@ export const bookingService = {
   },
 
   // Tạo đánh giá cho booking
-  createReview: async (reviewData: any): Promise<any> => {
+  createReview: async (reviewData: Review): Promise<Review> => {
     const response = await api.post("/api/guest/review", reviewData);
     toastService.success("Đánh giá đã được gửi thành công");
     return response.data;
@@ -83,7 +93,9 @@ export const bookingService = {
   },
 
   // lấy danh sách thanh toán
-  getPayments: async (params: any): Promise<any> => {
+  getPayments: async (
+    params: Record<string, unknown>
+  ): Promise<{ payments: Payment[] }> => {
     const response = await api.get("/api/host/payments", { params });
     return response.data;
   },

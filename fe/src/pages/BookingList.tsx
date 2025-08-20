@@ -12,8 +12,6 @@ import {
   MoreVertical,
   Check,
   X,
-  Plus,
-  Book,
   FileText,
 } from "lucide-react";
 import { Booking } from "../types";
@@ -239,24 +237,6 @@ function BookingList() {
 
       case "confirmed":
         if (booking.paidAmount < booking.totalAmount) {
-          actions.push({
-            label: "Thanh toán VNPAY",
-            icon: Plus,
-            color: "text-purple-600 hover:text-purple-800",
-            action: async () => {
-              try {
-                const paymentUrl = await bookingService.createVnpayPayment(
-                  booking.totalAmount - booking.paidAmount,
-                  booking.id.toString(),
-                  `Thanh toán đơn đặt phòng ${booking.bookingCode}`
-                );
-                window.open(paymentUrl, "_blank");
-              } catch (error) {
-                alert("Không tạo được link thanh toán VNPAY");
-              }
-              setActiveDropdown(null);
-            },
-          });
           actions.push({
             label: "Xác nhận thanh toán",
             icon: Check,

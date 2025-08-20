@@ -158,7 +158,7 @@ function BookingHistory() {
             icon: X,
             color: "text-red-600 hover:text-red-800",
             action: async () => {
-              var result = await confirm({
+              const result = await confirm({
                 title: "Xác nhận hủy đặt phòng",
                 description: `Bạn có chắc chắn muốn hủy đặt phòng này?`,
                 confirmText: "Hủy",
@@ -189,7 +189,10 @@ function BookingHistory() {
         break;
 
       case "confirmed":
-        if (booking.paidAmount < booking.totalAmount) {
+        if (
+          booking.paidAmount < booking.totalAmount &&
+          booking.paymentMethod === "Chuyển khoản"
+        ) {
           actions.push({
             label: "Thanh toán VNPAY",
             icon: Check,
@@ -202,7 +205,7 @@ function BookingHistory() {
                   `Thanh toán đơn đặt phòng ${booking.bookingCode}`
                 );
                 window.open(paymentUrl, "_blank");
-              } catch (error) {
+              } catch {
                 alert("Không tạo được link thanh toán VNPAY");
               }
               setActiveDropdown(null);
@@ -214,7 +217,7 @@ function BookingHistory() {
           icon: X,
           color: "text-red-600 hover:text-red-800",
           action: async () => {
-            var result = await confirm({
+            const result = await confirm({
               title: "Xác nhận hủy đặt phòng",
               description: `Bạn có chắc chắn muốn hủy đặt phòng này?`,
               confirmText: "Hủy",
@@ -266,11 +269,8 @@ function BookingHistory() {
     try {
       await bookingService.createReview(review);
       setIsReviewModalOpen(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting review:", error);
-      if (error.response) {
-        console.log("Lỗi chi tiết từ backend:", error.response);
-      }
     }
   };
 

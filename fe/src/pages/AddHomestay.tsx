@@ -71,7 +71,7 @@ const AddHomestay: React.FC = () => {
 
   const handleInputChange = (
     field: keyof CreateHomestayRequest,
-    value: any
+    value: string | number
   ) => {
     setFormData((prev) => ({
       ...prev,

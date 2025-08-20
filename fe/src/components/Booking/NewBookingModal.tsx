@@ -174,10 +174,15 @@ const NewBookingModal: React.FC<NewBookingModalProps> = ({
       pricePerNight: room.pricePerNight,
       nights: nights,
       subtotal: room.pricePerNight * nights,
-      capacity: room.capacity,
     }));
 
+    // Lấy homestayId từ phòng đầu tiên đã chọn (giả sử tất cả phòng cùng homestay)
+    const homestayId =
+      selectedRooms.length > 0
+        ? rooms.find((r) => r.id === selectedRooms[0].id)?.homestayId ?? 0
+        : 0;
     onCreateBooking({
+      homestayId,
       customerName: newBooking.customerName,
       customerPhone: newBooking.customerPhone,
       customerEmail: newBooking.customerEmail,

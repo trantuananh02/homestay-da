@@ -98,7 +98,7 @@ const EditHomestay: React.FC = () => {
 
   const handleInputChange = (
     field: keyof UpdateHomestayRequest,
-    value: any
+    value: string | number
   ) => {
     setFormData((prev) => ({
       ...prev,

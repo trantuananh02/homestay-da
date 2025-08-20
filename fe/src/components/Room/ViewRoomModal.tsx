@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, Edit, Plus } from 'lucide-react';
-import { Room } from '../../types';
-import { homestayService } from '../../services/homestayService';
+import React, { useState, useEffect } from "react";
+import { X, Edit, Plus } from "lucide-react";
+import { Room } from "../../types";
+import { homestayService } from "../../services/homestayService";
 
 interface ViewRoomModalProps {
   isOpen: boolean;
@@ -12,22 +12,39 @@ interface ViewRoomModalProps {
 }
 
 const roomTypes = [
-  { value: 'Standard', label: 'Phòng Standard' },
-  { value: 'Deluxe', label: 'Phòng Deluxe' },
-  { value: 'Premium', label: 'Phòng Premium' },
-  { value: 'Suite', label: 'Phòng Suite' }
+  { value: "Standard", label: "Phòng Standard" },
+  { value: "Deluxe", label: "Phòng Deluxe" },
+  { value: "Premium", label: "Phòng Premium" },
+  { value: "Suite", label: "Phòng Suite" },
 ];
 
 const commonAmenities = [
-  'Wi-Fi', 'Điều hòa', 'TV', 'Tủ lạnh', 'Máy sấy tóc', 'Két an toàn',
-  'Ban công', 'Tầm nhìn ra biển', 'Tầm nhìn ra núi', 'Phòng tắm riêng',
-  'Bồn tắm', 'Vòi sen', 'Đồ vệ sinh cá nhân', 'Khăn tắm'
+  "Wi-Fi",
+  "Điều hòa",
+  "TV",
+  "Tủ lạnh",
+  "Máy sấy tóc",
+  "Két an toàn",
+  "Ban công",
+  "Tầm nhìn ra biển",
+  "Tầm nhìn ra núi",
+  "Phòng tắm riêng",
+  "Bồn tắm",
+  "Vòi sen",
+  "Đồ vệ sinh cá nhân",
+  "Khăn tắm",
 ];
 
-const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, isEdit, readonly }) => {
+const ViewRoomModal: React.FC<ViewRoomModalProps> = ({
+  isOpen,
+  onClose,
+  room,
+  isEdit,
+  readonly,
+}) => {
   const [isEditing, setIsEditing] = useState(isEdit);
   const [formData, setFormData] = useState<Room | null>(room);
-  const [newAmenity, setNewAmenity] = useState('');
+  const [newAmenity, setNewAmenity] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -35,7 +52,10 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
     setIsEditing(false);
   }, [room, isOpen]);
 
-  const handleFormChange = (field: keyof Room, value: any) => {
+  const handleFormChange = (
+    field: keyof Room,
+    value: string | number | boolean | string[]
+  ) => {
     if (!formData) return;
     setFormData({ ...formData, [field]: value });
   };
@@ -43,17 +63,28 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
   const addAmenityToList = (amenity: string) => {
     if (!formData) return;
     if (amenity && !formData.amenities?.includes(amenity)) {
-      setFormData(prev => prev ? { ...prev, amenities: [...(prev.amenities || []), amenity] } : prev);
+      setFormData((prev) =>
+        prev
+          ? { ...prev, amenities: [...(prev.amenities || []), amenity] }
+          : prev
+      );
     }
   };
   const removeAmenity = (amenity: string) => {
     if (!formData) return;
-    setFormData(prev => prev ? { ...prev, amenities: (prev.amenities || []).filter(a => a !== amenity) } : prev);
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            amenities: (prev.amenities || []).filter((a) => a !== amenity),
+          }
+        : prev
+    );
   };
   const addCustomAmenity = () => {
     if (newAmenity.trim()) {
       addAmenityToList(newAmenity.trim());
-      setNewAmenity('');
+      setNewAmenity("");
     }
   };
 
@@ -65,16 +96,16 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
       await homestayService.updateRoom(formData.id, {
         name: formData.name,
         description: formData.description,
-        type: formData.type as 'Standard' | 'Deluxe' | 'Premium' | 'Suite',
+        type: formData.type as "Standard" | "Deluxe" | "Premium" | "Suite",
         capacity: formData.capacity,
         price: formData.price,
         status: formData.status,
         amenities: formData.amenities || [],
-        images: formData.images || []
+        images: formData.images || [],
       });
       setIsEditing(false);
     } catch (error) {
-      alert('Có lỗi khi cập nhật phòng!');
+      alert("Có lỗi khi cập nhật phòng!");
     } finally {
       setIsSaving(false);
     }
@@ -115,66 +146,90 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
             <form onSubmit={handleSave} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tên phòng *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tên phòng *
+                  </label>
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={e => handleFormChange('name', e.target.value)}
+                    onChange={(e) => handleFormChange("name", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Loại phòng *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Loại phòng *
+                  </label>
                   <select
                     value={formData.type}
-                    onChange={e => handleFormChange('type', e.target.value)}
+                    onChange={(e) => handleFormChange("type", e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     required
                   >
-                    {roomTypes.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
+                    {roomTypes.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Sức chứa *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sức chứa *
+                  </label>
                   <input
                     type="number"
                     value={formData.capacity}
-                    onChange={e => handleFormChange('capacity', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleFormChange("capacity", parseInt(e.target.value))
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Giá phòng/đêm *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Giá phòng/đêm *
+                  </label>
                   <input
                     type="number"
                     value={formData.price}
-                    onChange={e => handleFormChange('price', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleFormChange("price", parseInt(e.target.value))
+                    }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     required
                   />
                 </div>
-                {!readonly && (<div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
-                  <select
-                    value={formData.status}
-                    onChange={e => handleFormChange('status', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  >
-                    <option value="available">Sẵn sàng</option>
-                    <option value="occupied">Đang sử dụng</option>
-                    <option value="maintenance">Bảo trì</option>
-                  </select>
-                </div>)}
+                {!readonly && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Trạng thái
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) =>
+                        handleFormChange("status", e.target.value)
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    >
+                      <option value="available">Sẵn sàng</option>
+                      <option value="occupied">Đang sử dụng</option>
+                      <option value="maintenance">Bảo trì</option>
+                    </select>
+                  </div>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mô tả
+                </label>
                 <textarea
                   value={formData.description}
-                  onChange={e => handleFormChange('description', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("description", e.target.value)
+                  }
                   rows={3}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   required
@@ -196,10 +251,11 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
                           ? removeAmenity(amenity)
                           : addAmenityToList(amenity)
                       }
-                      className={`p-2 text-sm rounded-lg border transition-colors ${formData.amenities?.includes(amenity)
-                        ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
-                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                        }`}
+                      className={`p-2 text-sm rounded-lg border transition-colors ${
+                        formData.amenities?.includes(amenity)
+                          ? "bg-emerald-100 border-emerald-300 text-emerald-800"
+                          : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
                     >
                       {amenity}
                     </button>
@@ -214,7 +270,10 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
                     onChange={(e) => setNewAmenity(e.target.value)}
                     className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Thêm tiện nghi khác..."
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      (e.preventDefault(), addCustomAmenity())
+                    }
                   />
                   <button
                     type="button"
@@ -226,25 +285,26 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
                 </div>
 
                 {/* Selected Amenities */}
-                {Array.isArray(formData.amenities) && formData.amenities.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {formData.amenities.map((amenity) => (
-                      <span
-                        key={amenity}
-                        className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm flex items-center space-x-1"
-                      >
-                        <span>{amenity}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeAmenity(amenity)}
-                          className="text-emerald-600 hover:text-emerald-800"
+                {Array.isArray(formData.amenities) &&
+                  formData.amenities.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.amenities.map((amenity) => (
+                        <span
+                          key={amenity}
+                          className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm flex items-center space-x-1"
                         >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                          <span>{amenity}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeAmenity(amenity)}
+                            className="text-emerald-600 hover:text-emerald-800"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
               </div>
               {/* Ảnh phòng */}
               {formData.images && formData.images.length > 0 && (
@@ -261,8 +321,20 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
               )}
               {/* TODO: Thêm upload ảnh nếu cần */}
               <div className="flex gap-2 mt-4">
-                <button type="submit" disabled={isSaving} className="bg-emerald-600 text-white px-4 py-2 rounded-lg">{isSaving ? 'Đang lưu...' : 'Lưu'}</button>
-                <button type="button" onClick={() => setIsEditing(false)} className="ml-2 px-4 py-2 rounded-lg border">Hủy</button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="bg-emerald-600 text-white px-4 py-2 rounded-lg"
+                >
+                  {isSaving ? "Đang lưu..." : "Lưu"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="ml-2 px-4 py-2 rounded-lg border"
+                >
+                  Hủy
+                </button>
               </div>
             </form>
           ) : (
@@ -282,51 +354,78 @@ const ViewRoomModal: React.FC<ViewRoomModalProps> = ({ isOpen, onClose, room, is
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tên phòng</label>
-                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">{formData.name}</div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tên phòng
+                  </label>
+                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    {formData.name}
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Loại phòng</label>
-                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">{formData.type}</div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Loại phòng
+                  </label>
+                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    {formData.type}
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Sức chứa</label>
-                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">{formData.capacity} người</div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sức chứa
+                  </label>
+                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    {formData.capacity} người
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Giá phòng/đêm</label>
-                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">{formData.price.toLocaleString()} VNĐ</div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Giá phòng/đêm
+                  </label>
+                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    {formData.price.toLocaleString()} VNĐ
+                  </div>
                 </div>
                 {!readonly && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
-                    <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">{formData.status}</div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Trạng thái
+                    </label>
+                    <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                      {formData.status}
+                    </div>
                   </div>
                 )}
               </div>
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
-                <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">{formData.description}</div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mô tả
+                </label>
+                <div className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                  {formData.description}
+                </div>
               </div>
               {/* Tiện ích */}
 
-                {console.log(formData)}
+              {console.log(formData)}
 
-              {Array.isArray(formData.amenities) && formData.amenities.length > 0 && (
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tiện ích</label>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.amenities.map((amenity, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"
-                      >
-                        {amenity}
-                      </span>
-                    ))}
+              {Array.isArray(formData.amenities) &&
+                formData.amenities.length > 0 && (
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tiện ích
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.amenities.map((amenity, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </>
           )}
         </div>

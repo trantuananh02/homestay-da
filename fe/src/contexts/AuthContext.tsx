@@ -1,5 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService, LoginRequest, RegisterRequest } from '../services/authService';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  authService,
+  LoginRequest,
+  RegisterRequest,
+} from "../services/authService";
 
 // User interface matching backend response
 export interface User {
@@ -26,7 +36,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -49,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(userData);
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error("Auth check failed:", error);
         // Clear invalid auth data
         authService.logout();
       } finally {
@@ -64,12 +74,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await authService.login(credentials);
       authService.saveAuthData(response);
       setUser(response.user);
-    } catch (error: any) {
-      const errorMessage = error.message || 'Đăng nhập thất bại';
+    } catch (error: unknown) {
+      let errorMessage = "Đăng nhập thất bại";
+      if (typeof error === "object" && error !== null && "message" in error) {
+        errorMessage = (error as { message?: string }).message || errorMessage;
+      }
       setError(errorMessage);
       // Toast notification is already handled in authService
       throw error;
@@ -82,13 +95,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await authService.register(userData);
       // authService.saveAuthData(response);
       // setUser(response.user);
       console.log("Register response:", response);
-    } catch (error: any) {
-      const errorMessage = error.message || 'Đăng ký thất bại';
+    } catch (error: unknown) {
+      let errorMessage = "Đăng ký thất bại";
+      if (typeof error === "object" && error !== null && "message" in error) {
+        errorMessage = (error as { message?: string }).message || errorMessage;
+      }
       setError(errorMessage);
       // Toast notification is already handled in authService
       throw error;
@@ -103,7 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authService.logout();
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       // Toast notification is already handled in authService
     } finally {
       setIsLoading(false);
@@ -117,16 +133,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      register, 
-      logout, 
-      isAuthenticated, 
-      isLoading, 
-      error, 
-      clearError 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        isAuthenticated,
+        isLoading,
+        error,
+        clearError,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

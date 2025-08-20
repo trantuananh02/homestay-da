@@ -11,7 +11,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   filters,
   onFiltersChange,
 }) => {
-  const handleFilterChange = (key: keyof HomestayListRequest, value: any) => {
+  const handleFilterChange = (
+    key: keyof HomestayListRequest,
+    value: string | number
+  ) => {
     onFiltersChange({
       ...filters,
       [key]: value,

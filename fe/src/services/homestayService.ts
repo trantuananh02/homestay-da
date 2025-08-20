@@ -1,13 +1,45 @@
-export function parseImageUrls(imageUrls: any): string[] {
-  if (!imageUrls || imageUrls.length === 0) return [];
+function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null) {
+    // Kiểm tra thuộc tính response
+    const response = (error as Record<string, unknown>).response;
+    if (typeof response === "object" && response !== null) {
+      const data = (response as Record<string, unknown>).data as
+        | Record<string, unknown>
+        | undefined;
+      if (data) {
+        if (
+          typeof data.result === "object" &&
+          data.result !== null &&
+          "message" in (data.result as object)
+        ) {
+          const msg = (data.result as Record<string, unknown>).message;
+          if (typeof msg === "string") return msg;
+        }
+        if ("message" in data && typeof data.message === "string") {
+          return data.message;
+        }
+      }
+    }
+    // Kiểm tra thuộc tính message trực tiếp trên error
+    if (
+      "message" in error &&
+      typeof (error as Record<string, unknown>).message === "string"
+    ) {
+      return (error as Record<string, unknown>).message as string;
+    }
+  }
+  return "Đã xảy ra lỗi";
+}
+export function parseImageUrls(imageUrls: unknown): string[] {
+  if (!Array.isArray(imageUrls) || imageUrls.length === 0) return [];
   // Nếu là mảng chứa chuỗi JSON
   if (
     imageUrls.length === 1 &&
     typeof imageUrls[0] === "string" &&
-    imageUrls[0].startsWith("[")
+    (imageUrls[0] as string).startsWith("[")
   ) {
     try {
-      const parsed = JSON.parse(imageUrls[0]);
+      const parsed = JSON.parse(imageUrls[0] as string);
       if (Array.isArray(parsed)) {
         return parsed.filter(
           (url) =>
@@ -20,12 +52,9 @@ export function parseImageUrls(imageUrls: any): string[] {
     }
   }
   // Nếu là mảng url chuẩn
-  if (Array.isArray(imageUrls)) {
-    return imageUrls.filter(
-      (url) => typeof url === "string" && url && url !== "{}" && url !== "null"
-    );
-  }
-  return [];
+  return (imageUrls as unknown[]).filter(
+    (url) => typeof url === "string" && url && url !== "{}" && url !== "null"
+  ) as string[];
 }
 import api from "./api";
 import { toastService } from "./toastService";
@@ -58,10 +87,8 @@ class HomestayService {
       const response = await api.post("/api/host/homestays", data);
       toastService.success("Tạo homestay thành công");
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi tạo homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -73,11 +100,8 @@ class HomestayService {
       const response = await api.get("/api/host/homestays", { params });
 
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy danh sách homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -86,11 +110,8 @@ class HomestayService {
     try {
       const response = await api.get(`/api/host/homestays/${id}`);
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy thông tin homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -101,11 +122,8 @@ class HomestayService {
       console.log("Homestay detail response:", response.data.homestay);
 
       return response.data.homestay;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy thông tin homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -118,10 +136,8 @@ class HomestayService {
       const response = await api.put(`/api/host/homestays/${id}`, data);
       toastService.success("Cập nhật homestay thành công");
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi cập nhật homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -130,10 +146,8 @@ class HomestayService {
     try {
       await api.delete(`/api/host/homestays/${id}`);
       toastService.success("Xóa homestay thành công");
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi xóa homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -146,11 +160,8 @@ class HomestayService {
         newStatus === "active" ? "Hoạt động" : "Không hoạt động";
       toastService.success(`Đã chuyển homestay sang trạng thái ${statusText}`);
       return response.data.homestay;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi thay đổi trạng thái homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -160,10 +171,8 @@ class HomestayService {
       const response = await api.get("/api/host/homestays/stats");
 
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi lấy thống kê homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -172,10 +181,8 @@ class HomestayService {
     try {
       const response = await api.get(`/api/host/homestays/${id}/stats`);
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi lấy thống kê homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -186,10 +193,8 @@ class HomestayService {
       const response = await api.post("/api/host/rooms", data);
       toastService.success("Tạo phòng thành công");
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi tạo phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -198,10 +203,8 @@ class HomestayService {
     try {
       const response = await api.get("/api/host/rooms", { params });
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi lấy danh sách phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -210,10 +213,8 @@ class HomestayService {
     try {
       const response = await api.get(`/api/host/rooms/${id}`);
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi lấy thông tin phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -225,10 +226,8 @@ class HomestayService {
       const response = await api.put(`/api/host/rooms/${id}`, data);
       toastService.success("Cập nhật phòng thành công");
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi cập nhật phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -237,10 +236,8 @@ class HomestayService {
     try {
       await api.delete(`/api/host/rooms/${id}`);
       toastService.success("Xóa phòng thành công");
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi xóa phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -251,10 +248,8 @@ class HomestayService {
         `/api/host/homestays/${homestayId}/rooms/stats`
       );
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi lấy thống kê phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -267,10 +262,8 @@ class HomestayService {
       const response = await api.post("/api/host/rooms/availability", data);
       toastService.success("Tạo availability thành công");
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi tạo availability"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -286,10 +279,8 @@ class HomestayService {
       );
       toastService.success("Cập nhật availability thành công");
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi cập nhật availability"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -298,11 +289,8 @@ class HomestayService {
     try {
       await api.post("/api/host/rooms/availability/bulk", data);
       toastService.success("Cập nhật availability hàng loạt thành công");
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi cập nhật availability hàng loạt"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -321,11 +309,8 @@ class HomestayService {
 
       toastService.success("Tải lên hình ảnh phòng thành công");
       return response.data.url;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi tải lên hình ảnh phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -380,11 +365,8 @@ class HomestayService {
       const response = await api.get("/api/public/homestays", { params });
 
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy danh sách homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -395,11 +377,8 @@ class HomestayService {
         params: { limit },
       });
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy danh sách homestay nổi bật"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -408,11 +387,8 @@ class HomestayService {
     try {
       const response = await api.get(`/api/public/homestays/${id}`);
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy thông tin homestay"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -422,10 +398,8 @@ class HomestayService {
       const response = await api.get("/api/guest/rooms", { params });
 
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message || "Lỗi khi lấy danh sách phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -439,11 +413,8 @@ class HomestayService {
       );
 
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy danh sách đặt phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -457,11 +428,8 @@ class HomestayService {
       );
 
       return response.data;
-    } catch (error: any) {
-      toastService.error(
-        error.response?.data?.result?.message ||
-          "Lỗi khi lấy danh sách đặt phòng"
-      );
+    } catch (error: unknown) {
+      toastService.error(getErrorMessage(error));
       throw error;
     }
   }

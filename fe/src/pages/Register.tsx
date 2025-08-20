@@ -18,7 +18,7 @@ const Register: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [localErrors, setLocalErrors] = useState<any>({});
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
   // Clear error when component mounts
@@ -35,7 +35,7 @@ const Register: React.FC = () => {
   }, [navigate]);
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "Họ tên là bắt buộc";
@@ -85,14 +85,14 @@ const Register: React.FC = () => {
 
       // Only include phone if it's not empty
       if (!registerData.phone) {
-        delete (registerData as any).phone;
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+        delete (registerData as { [key: string]: unknown }).phone;
       }
 
       await register(registerData);
 
       // hien thi popup thong bao
       setShowConfirmPopup(true);
-
     } catch (error: any) {
       // Error is handled by AuthContext and toastService
       console.error("Register error:", error);
@@ -102,7 +102,7 @@ const Register: React.FC = () => {
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (localErrors[field]) {
-      setLocalErrors((prev: any) => ({ ...prev, [field]: "" }));
+      setLocalErrors((prev) => ({ ...prev, [field]: "" }));
     }
     // Clear auth error when user starts typing
     if (error) {
