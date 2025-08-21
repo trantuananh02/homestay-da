@@ -18,12 +18,21 @@ const GuestNewBooking = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [existingBookings, setExistingBookings] = useState<Booking[]>([]);
+  const [homestayName, setHomestayName] = useState<string>("");
 
   // get user info from localStorage
   const userInfo = localStorage.getItem("user");
 
   useEffect(() => {
     const fetchData = async () => {
+      // Lấy tên homestay
+      try {
+        const homestay = await homestayService.getPublicHomestayDetail(
+          Number(id)
+        );
+        setHomestayName(homestay.name || "");
+      } catch {}
+
       const roomList = await homestayService.getPublicRoomList({
         homestayId: Number(id),
         page: 1,
@@ -359,8 +368,18 @@ const GuestNewBooking = () => {
               })()}
             </div>
 
-            {/* Room Information */}
+            {/* Homestay Name + Room Information */}
             <div className="bg-gray-50 rounded-lg p-4">
+              {homestayName && (
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-base font-semibold text-purple-700">
+                    Homestay:
+                  </span>
+                  <span className="text-base font-bold text-gray-900">
+                    {homestayName}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center gap-2 mb-4">
                 <Home className="w-5 h-5 text-green-600" />
                 <h3 className="text-lg font-semibold text-gray-900">

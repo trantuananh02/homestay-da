@@ -515,6 +515,12 @@ function BookingList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
+                        {/* Hiển thị tên homestay */}
+                        {booking.homestayName && (
+                          <div className="text-xs font-semibold text-purple-700 mb-1">
+                            Homestay: {booking.homestayName}
+                          </div>
+                        )}
                         {booking.rooms?.map((room, index) => (
                           <div key={index}>
                             <div className="text-sm font-medium text-gray-900">
