@@ -537,23 +537,31 @@ func (l *BookingLogic) UpdateBookingStatus(ctx context.Context, bookingID int, r
 		return nil, errors.New("booking not found")
 	}
 
-	if booking.Status == req.Status || (req.Status != "confirmed" && req.Status != "cancelled" && req.Status != "completed") {
+	validStatuses := map[string]bool{
+		"pending": true,
+		"confirmed": true,
+		"checked_in": true,
+		"completed": true,
+		"cancelled": true,
+	}
+	if booking.Status == req.Status || !validStatuses[req.Status] {
 		return nil, errors.New("invalid booking status")
 	}
 
-	// Nếu status là "cancelled" thì cần kiểm tra xem booking có đang trong trạng thái "confirmed" hay không
+	// Chuyển trạng thái hợp lệ:
+	// pending -> confirmed -> checked_in -> completed
+	// pending/confirmed -> cancelled
 	if req.Status == "cancelled" && booking.Status != "pending" && booking.Status != "confirmed" {
 		return nil, errors.New("only pending or confirmed bookings can be cancelled")
 	}
-
-	// Nếu status là "completed" thì cần kiểm tra xem booking có đang trong trạng thái "confirmed" hay không
-	if req.Status == "completed" && booking.Status != "confirmed" {
-		return nil, errors.New("only confirmed bookings can be completed")
-	}
-
-	// Nếu status là "confirmed" thì cần kiểm tra xem booking có đang trong trạng thái "pending" hay không
 	if req.Status == "confirmed" && booking.Status != "pending" {
 		return nil, errors.New("only pending bookings can be confirmed")
+	}
+	if req.Status == "checked_in" && booking.Status != "confirmed" {
+		return nil, errors.New("only confirmed bookings can be checked in")
+	}
+	if req.Status == "completed" && booking.Status != "checked_in" {
+		return nil, errors.New("only checked_in bookings can be completed")
 	}
 
 	// Nếu status là "completed" thì thêm payment tương ứng

@@ -12,7 +12,7 @@ type Booking struct {
 	Nights        int           `json:"nights"`
 	TotalAmount   float64       `json:"totalAmount"`
 	PaidAmount    float64       `json:"paidAmount"`
-	Status        string        `json:"status"`
+	Status        string        `json:"status"` // pending, confirmed, checked_in, completed, cancelled
 	BookingDate   string        `json:"bookingDate"`
 	PaymentMethod string        `json:"paymentMethod"`
 	Rooms         []BookingRoom `json:"rooms"`

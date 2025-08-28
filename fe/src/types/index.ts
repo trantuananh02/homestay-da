@@ -149,7 +149,7 @@ export interface Booking {
   nights: number;
   totalAmount: number;
   paidAmount: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status: "pending" | "confirmed" | "checked_in" | "cancelled" | "completed";
   bookingDate: string;
   paymentMethod: string;
 }

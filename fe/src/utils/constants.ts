@@ -24,6 +24,7 @@ export const USER_ROLES = {
 export const BOOKING_STATUS = {
   PENDING: "pending",
   CONFIRMED: "confirmed",
+  CHECKED_IN: "checked_in",
   CANCELLED: "cancelled",
   COMPLETED: "completed",
 } as const;

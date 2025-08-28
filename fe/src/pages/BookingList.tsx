@@ -89,6 +89,7 @@ function BookingList() {
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800",
     confirmed: "bg-blue-100 text-blue-800",
+    checked_in: "bg-purple-100 text-purple-800",
     cancelled: "bg-red-100 text-red-800",
     completed: "bg-green-100 text-green-800",
   };
@@ -96,6 +97,7 @@ function BookingList() {
   const statusLabels = {
     pending: "Chờ xác nhận",
     confirmed: "Đã xác nhận",
+    checked_in: "Đã nhận phòng",
     cancelled: "Đã hủy",
     completed: "Hoàn thành",
   };
@@ -222,6 +224,65 @@ function BookingList() {
         break;
 
       case "confirmed":
+        actions.push({
+          label: "Xác nhận đã check-in",
+          icon: Check,
+          color: "text-purple-600 hover:text-purple-800",
+          action: async () => {
+            const result = await confirm({
+              title: "Xác nhận đã nhận phòng",
+              description: `Bạn xác nhận khách đã nhận phòng?`,
+              confirmText: "Đã nhận phòng",
+              cancelText: "Hủy",
+            });
+            if (result) {
+              await bookingService.updateBookingStatus(
+                booking.id,
+                "checked_in"
+              );
+              const bookingList = await bookingService.filterBookings({
+                customerName: filters.customerName,
+                customerPhone: filters.customerPhone,
+                dateFrom: filters.dateFrom,
+                dateTo: filters.dateTo,
+                status: filters.status,
+                page: currentPage,
+                pageSize: itemsPerPage,
+              });
+              setBookings(bookingList.bookings || []);
+            }
+            setActiveDropdown(null);
+          },
+        });
+        actions.push({
+          label: "Hủy đặt phòng",
+          icon: X,
+          color: "text-red-600 hover:text-red-800",
+          action: async () => {
+            const result = await confirm({
+              title: "Xác nhận hủy đặt phòng",
+              description: `Bạn có chắc chắn muốn hủy đặt phòng này?`,
+              confirmText: "Hủy",
+              cancelText: "Không",
+            });
+            if (result) {
+              await bookingService.updateBookingStatus(booking.id, "cancelled");
+              const bookingList = await bookingService.filterBookings({
+                customerName: filters.customerName,
+                customerPhone: filters.customerPhone,
+                dateFrom: filters.dateFrom,
+                dateTo: filters.dateTo,
+                status: filters.status,
+                page: currentPage,
+                pageSize: itemsPerPage,
+              });
+              setBookings(bookingList.bookings || []);
+            }
+            setActiveDropdown(null);
+          },
+        });
+        break;
+      case "checked_in":
         if (booking.paidAmount < booking.totalAmount) {
           actions.push({
             label: "Xác nhận thanh toán",
@@ -254,33 +315,6 @@ function BookingList() {
             },
           });
         }
-        actions.push({
-          label: "Hủy đặt phòng",
-          icon: X,
-          color: "text-red-600 hover:text-red-800",
-          action: async () => {
-            const result = await confirm({
-              title: "Xác nhận hủy đặt phòng",
-              description: `Bạn có chắc chắn muốn hủy đặt phòng này?`,
-              confirmText: "Hủy",
-              cancelText: "Không",
-            });
-            if (result) {
-              await bookingService.updateBookingStatus(booking.id, "cancelled");
-              const bookingList = await bookingService.filterBookings({
-                customerName: filters.customerName,
-                customerPhone: filters.customerPhone,
-                dateFrom: filters.dateFrom,
-                dateTo: filters.dateTo,
-                status: filters.status,
-                page: currentPage,
-                pageSize: itemsPerPage,
-              });
-              setBookings(bookingList.bookings || []);
-            }
-            setActiveDropdown(null);
-          },
-        });
         break;
 
       case "completed":

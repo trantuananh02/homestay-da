@@ -7,7 +7,9 @@ export const bookingService = {
   // Lọc danh sách booking (filter)
   filterBookings: async (
     params: Record<string, unknown>
-  ): Promise<{ bookings: Booking[] }> => {
+  ): Promise<{
+    [x: string]: number; bookings: Booking[] 
+}> => {
     const response = await api.get("/api/host/booking", { params });
     return response.data;
   },

@@ -60,6 +60,7 @@ function BookingHistory() {
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800",
     confirmed: "bg-blue-100 text-blue-800",
+    checked_in: "bg-purple-100 text-purple-800",
     cancelled: "bg-red-100 text-red-800",
     completed: "bg-green-100 text-green-800",
   };
@@ -67,6 +68,7 @@ function BookingHistory() {
   const statusLabels = {
     pending: "Chờ xác nhận",
     confirmed: "Đã xác nhận",
+    checked_in: "Đã nhận phòng",
     cancelled: "Đã hủy",
     completed: "Hoàn thành",
   };
@@ -331,6 +333,7 @@ function BookingHistory() {
                 <option value="">Tất cả trạng thái</option>
                 <option value="pending">Chờ xác nhận</option>
                 <option value="confirmed">Đã xác nhận</option>
+                <option value="checked_in">Đã nhận phòng</option>
                 <option value="cancelled">Đã hủy</option>
                 <option value="completed">Hoàn thành</option>
               </select>
