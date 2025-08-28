@@ -235,9 +235,9 @@ func (r *bookingRepository) Search(ctx context.Context, req *model.BookingSearch
 
 	// Truy vấn danh sách bookings
 	query := fmt.Sprintf(`
-		SELECT b.id, b.email, b.name, b.phone, b.check_in, b.check_out, b.num_guests, 
-		       b.total_amount, b.status, b.created_at, b.booking_code, 
-		       b.paid_amount, b.payment_method
+		SELECT b.id, b.homestay_id, b.email, b.name, b.phone, b.check_in, b.check_out, b.num_guests, 
+			   b.total_amount, b.status, b.created_at, b.booking_code, 
+			   b.paid_amount, b.payment_method
 		FROM booking b
 		%s
 		ORDER BY b.created_at DESC

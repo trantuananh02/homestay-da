@@ -371,6 +371,9 @@ function BookingHistory() {
                     Mã đặt phòng
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tên Homestay
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Thông tin phòng
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -400,6 +403,9 @@ function BookingHistory() {
                       <div className="text-sm font-medium text-blue-600 bg-blue-50 py-1 rounded">
                         {booking.bookingCode}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {booking.homestayName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">

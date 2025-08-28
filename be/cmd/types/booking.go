@@ -17,6 +17,8 @@ type Booking struct {
 	PaymentMethod string        `json:"paymentMethod"`
 	Rooms         []BookingRoom `json:"rooms"`
 	Review        Review        `json:"review"`
+	// Thêm trường HomestayName để trả về tên homestay cho mỗi đơn đặt phòng
+	HomestayName string `json:"homestayName"`
 }
 
 type BookingRoom struct {
@@ -79,7 +81,7 @@ type FilterBookingResp struct {
 type Payment struct {
 	ID            int     `json:"id"`
 	BookingCode   string  `json:"bookingCode"`
-	BookingID     int  `json:"bookingId"`
+	BookingID     int     `json:"bookingId"`
 	Amount        float64 `json:"amount"`
 	PaymentMethod string  `json:"paymentMethod"`
 	PaymentStatus string  `json:"paymentStatus"`

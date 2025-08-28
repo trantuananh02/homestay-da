@@ -459,6 +459,9 @@ function BookingList() {
                     Mã đặt phòng
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tên Homestay
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Thông tin người đặt
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -492,6 +495,9 @@ function BookingList() {
                         {booking.bookingCode}
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {booking.homestayName}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
@@ -515,12 +521,6 @@ function BookingList() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
-                        {/* Hiển thị tên homestay */}
-                        {booking.homestayName && (
-                          <div className="text-xs font-semibold text-purple-700 mb-1">
-                            Homestay: {booking.homestayName}
-                          </div>
-                        )}
                         {booking.rooms?.map((room, index) => (
                           <div key={index}>
                             <div className="text-sm font-medium text-gray-900">

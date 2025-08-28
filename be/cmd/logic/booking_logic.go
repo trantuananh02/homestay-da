@@ -119,7 +119,19 @@ func (l *BookingLogic) FilterBookings(ctx context.Context, req *types.FilterBook
 			PaidAmount:    booking.PaidAmount,
 			Rooms:         respRooms,
 			Review:        review,
+			HomestayID:    booking.HomestayID,
+			HomestayName:  "", // sẽ gán bên dưới
 		})
+	}
+
+	// Lấy tên homestay cho từng booking
+	for i := range respBookings {
+		homestay, err := l.svcCtx.HomestayRepo.GetByID(ctx, respBookings[i].HomestayID)
+		if err == nil && homestay != nil {
+			respBookings[i].HomestayName = homestay.Name
+		} else {
+			respBookings[i].HomestayName = ""
+		}
 	}
 
 	return &types.FilterBookingResp{
@@ -256,6 +268,11 @@ func (l *BookingLogic) CreateBooking(ctx context.Context, req *types.CreateBooki
 	}
 
 	// 5. Mapping sang types.Booking
+	homestayName := ""
+	homestay, err := l.svcCtx.HomestayRepo.GetByID(ctx, booking.HomestayID)
+	if err == nil && homestay != nil {
+		homestayName = homestay.Name
+	}
 	respBooking := types.Booking{
 		ID:            booking.ID,
 		BookingCode:   booking.BookingCode,
@@ -271,6 +288,8 @@ func (l *BookingLogic) CreateBooking(ctx context.Context, req *types.CreateBooki
 		Status:        booking.Status,
 		Nights:        int(booking.CheckOut.Sub(booking.CheckIn).Hours() / 24), // Tính số đêm
 		Rooms:         respRooms,
+		HomestayID:    booking.HomestayID,
+		HomestayName:  homestayName,
 	}
 
 	return &types.CreateBookingResp{Booking: respBooking}, nil
@@ -399,6 +418,11 @@ func (l *BookingLogic) CreateGuestBooking(ctx context.Context, req *types.Create
 	}
 
 	// 5. Mapping sang types.Booking
+	homestayName := ""
+	homestay, err := l.svcCtx.HomestayRepo.GetByID(ctx, booking.HomestayID)
+	if err == nil && homestay != nil {
+		homestayName = homestay.Name
+	}
 	respBooking := types.Booking{
 		ID:            booking.ID,
 		BookingCode:   booking.BookingCode,
@@ -414,6 +438,8 @@ func (l *BookingLogic) CreateGuestBooking(ctx context.Context, req *types.Create
 		Status:        booking.Status,
 		Nights:        int(booking.CheckOut.Sub(booking.CheckIn).Hours() / 24), // Tính số đêm
 		Rooms:         respRooms,
+		HomestayID:    booking.HomestayID,
+		HomestayName:  homestayName,
 	}
 
 	return &types.CreateBookingResp{Booking: respBooking}, nil
