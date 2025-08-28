@@ -398,6 +398,15 @@ const Management: React.FC = () => {
                               {homestay.address}, {homestay.ward},{" "}
                               {homestay.district}, {homestay.city}
                             </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Users className="h-4 w-4 mr-2" />
+                              <span className="font-semibold text-primary-600">
+                                {Array.isArray(homestay.rooms)
+                                  ? homestay.rooms.length
+                                  : 0}
+                              </span>{" "}
+                              phòng
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-2 gap-2">

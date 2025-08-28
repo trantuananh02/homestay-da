@@ -163,8 +163,8 @@ func (h *HomestayLogic) GetHomestayList(req *types.HomestayListRequest, hostID i
 
 	respList := make([]types.Homestay, 0, len(homestays))
 	for _, hst := range homestays {
-		var rooms []types.Room
-		roomModels, _, err := h.svcCtx.RoomRepo.GetByHomestayID(h.ctx, hst.ID, 0, 0)
+	var rooms []types.Room
+	roomModels, _, err := h.svcCtx.RoomRepo.GetByHomestayID(h.ctx, hst.ID, 1, 100)
 		if err != nil {
 			logx.Error(err)
 			return nil, err
