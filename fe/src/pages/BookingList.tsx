@@ -47,6 +47,7 @@ if (typeof window !== "undefined") {
 function BookingList() {
   const confirm = useConfirm();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [total, setTotal] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [filters, setFilters] = useState({
     customerName: "",
@@ -76,6 +77,7 @@ function BookingList() {
         });
 
         setBookings(bookingList.bookings || []);
+        setTotal(bookingList.total || 0);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
@@ -113,24 +115,8 @@ function BookingList() {
     });
   };
 
-  const filteredBookings = bookings.filter((booking) => {
-    return (
-      booking.customerName
-        .toLowerCase()
-        .includes(filters.customerName.toLowerCase()) &&
-      booking.customerPhone.includes(filters.customerPhone) &&
-      (!filters.dateFrom || booking.bookingDate >= filters.dateFrom) &&
-      (!filters.dateTo || booking.bookingDate <= filters.dateTo) &&
-      (!filters.status || booking.status === filters.status)
-    );
-  });
-
-  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentBookings = filteredBookings.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const totalPages = Math.ceil(total / itemsPerPage);
+  const currentBookings = bookings;
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -427,20 +413,23 @@ function BookingList() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Hiển thị {startIndex + 1} -{" "}
-              {Math.min(startIndex + itemsPerPage, filteredBookings.length)} của{" "}
-              {filteredBookings.length} kết quả
+              Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{" "}
+              {Math.min(currentPage * itemsPerPage, total)} của {total} kết quả
             </div>
             <div className="text-sm font-medium text-gray-900">
               Tổng doanh thu:{" "}
               {formatCurrency(
-                filteredBookings
+                bookings
                   .filter(
-                    (booking) =>
+                    (booking: Booking) =>
                       booking.status === "completed" ||
                       booking.status === "confirmed"
                   )
-                  .reduce((sum, booking) => sum + booking.totalAmount, 0)
+                  .reduce(
+                    (sum: number, booking: Booking) =>
+                      sum + booking.totalAmount,
+                    0
+                  )
               )}
             </div>
           </div>
@@ -488,7 +477,7 @@ function BookingList() {
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {startIndex + index + 1}
+                      {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
                     <td className="px-2 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-blue-600 bg-blue-50 py-1 rounded">
