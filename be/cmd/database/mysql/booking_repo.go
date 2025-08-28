@@ -82,6 +82,12 @@ func (r *bookingRepository) UpdateStatus(ctx context.Context, id int, req *model
 		argIndex++
 	}
 
+	if req.CheckOut != nil {
+		setClauses = append(setClauses, fmt.Sprintf("check_out = $%d", argIndex))
+		args = append(args, *req.CheckOut)
+		argIndex++
+	}
+
 	if len(setClauses) == 0 {
 		return r.GetByID(ctx, id)
 	}

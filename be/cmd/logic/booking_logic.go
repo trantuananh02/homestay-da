@@ -588,6 +588,13 @@ func (l *BookingLogic) UpdateBookingStatus(ctx context.Context, bookingID int, r
 			statusCompleted := "completed"
 			updateReq.Status = &statusCompleted
 		}
+
+		// Tự động cập nhật ngày check-out nếu khách trả phòng sớm
+		now := time.Now()
+		// Chỉ cập nhật nếu ngày hiện tại nhỏ hơn ngày check-out cũ
+		if now.Before(booking.CheckOut) {
+			updateReq.CheckOut = &now
+		}
 	}
 
 	// update booking status

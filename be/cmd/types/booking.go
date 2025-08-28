@@ -1,22 +1,23 @@
 package types
 
 type Booking struct {
-	ID            int           `json:"id"`
-	BookingCode   string        `json:"bookingCode"`
-	HomestayID    int           `json:"homestayId"`
-	CustomerName  string        `json:"customerName"`
-	CustomerPhone string        `json:"customerPhone"`
-	CustomerEmail string        `json:"customerEmail"`
-	CheckIn       string        `json:"checkIn"`
-	CheckOut      string        `json:"checkOut"`
-	Nights        int           `json:"nights"`
-	TotalAmount   float64       `json:"totalAmount"`
-	PaidAmount    float64       `json:"paidAmount"`
-	Status        string        `json:"status"` // pending, confirmed, checked_in, completed, cancelled
-	BookingDate   string        `json:"bookingDate"`
-	PaymentMethod string        `json:"paymentMethod"`
-	Rooms         []BookingRoom `json:"rooms"`
-	Review        Review        `json:"review"`
+	ID             int           `json:"id"`
+	BookingCode    string        `json:"bookingCode"`
+	HomestayID     int           `json:"homestayId"`
+	CustomerName   string        `json:"customerName"`
+	CustomerPhone  string        `json:"customerPhone"`
+	CustomerEmail  string        `json:"customerEmail"`
+	CheckIn        string        `json:"checkIn"`
+	CheckOut       string        `json:"checkOut"`
+	ActualCheckOut string        `json:"actualCheckOut"` // Ngày trả phòng thực tế
+	Nights         int           `json:"nights"`
+	TotalAmount    float64       `json:"totalAmount"`
+	PaidAmount     float64       `json:"paidAmount"`
+	Status         string        `json:"status"` // pending, confirmed, checked_in, completed, cancelled
+	BookingDate    string        `json:"bookingDate"`
+	PaymentMethod  string        `json:"paymentMethod"`
+	Rooms          []BookingRoom `json:"rooms"`
+	Review         Review        `json:"review"`
 	// Thêm trường HomestayName để trả về tên homestay cho mỗi đơn đặt phòng
 	HomestayName string `json:"homestayName"`
 }

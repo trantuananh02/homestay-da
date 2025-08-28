@@ -56,8 +56,9 @@ type BookingRoomCreateRequest struct {
 
 // BookingUpdateRequest giữ nguyên nếu chỉ update status
 type BookingUpdateRequest struct {
-	Status     *string  `json:"status"`
-	PaidAmount *float64 `json:"paid_amount"`
+	Status     *string     `json:"status"`
+	PaidAmount *float64    `json:"paid_amount"`
+	CheckOut   *time.Time  `json:"check_out"` // Cho phép cập nhật ngày check-out
 }
 
 // BookingSearchRequest request tìm kiếm booking
