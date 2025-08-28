@@ -391,7 +391,6 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                   >
                     <option value="Tiền mặt">Tiền mặt</option>
                     <option value="Chuyển khoản">Chuyển khoản</option>
-                    <option value="Thẻ tín dụng">Thẻ tín dụng</option>
                   </select>
                 </div>
               </div>

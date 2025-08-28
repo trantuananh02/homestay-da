@@ -55,11 +55,48 @@ const AddHomestay: React.FC = () => {
   const LocationPicker = () => {
     useMapEvents({
       click(e: { latlng: { lat: number; lng: number } }) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
         setFormData((prev: typeof formData) => ({
           ...prev,
-          latitude: e.latlng.lat,
-          longitude: e.latlng.lng,
+          latitude: lat,
+          longitude: lng,
         }));
+        // Gọi API lấy địa chỉ và cập nhật đồng thời
+        (async () => {
+          try {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data && data.address) {
+              setFormData((prev) => ({
+                ...prev,
+                latitude: lat,
+                longitude: lng,
+                address: data.address.road || data.display_name || "",
+                ward:
+                  data.address.suburb ||
+                  data.address.village ||
+                  data.address.hamlet ||
+                  data.address.neighbourhood ||
+                  "",
+                district:
+                  data.address.county ||
+                  data.address.district ||
+                  data.address.state_district ||
+                  data.address.municipality ||
+                  "",
+                city:
+                  data.address.city ||
+                  data.address.town ||
+                  data.address.state ||
+                  "",
+              }));
+            }
+          } catch (error) {
+            console.error("Không lấy được địa chỉ từ tọa độ", error);
+          }
+        })();
       },
     });
     return null;

@@ -31,7 +31,9 @@ const GuestNewBooking = () => {
           Number(id)
         );
         setHomestayName(homestay.name || "");
-      } catch {}
+      } catch {
+        /* empty */
+      }
 
       const roomList = await homestayService.getPublicRoomList({
         homestayId: Number(id),
@@ -46,6 +48,7 @@ const GuestNewBooking = () => {
           Number(id)
         );
         setExistingBookings(bookingList.bookings || []);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         // ignore; toast already handled in service
       }
@@ -544,7 +547,6 @@ const GuestNewBooking = () => {
                   >
                     <option value="Tiền mặt">Tiền mặt</option>
                     <option value="Chuyển khoản">Chuyển khoản</option>
-                    <option value="Thẻ tín dụng">Thẻ tín dụng</option>
                   </select>
                 </div>
               </div>

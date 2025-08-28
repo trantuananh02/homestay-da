@@ -47,14 +47,48 @@ const EditHomestay: React.FC = () => {
   };
 
   // Component chọn vị trí trên bản đồ
+  // Hàm lấy địa chỉ từ tọa độ sử dụng Nominatim reverse geocoding
+  const fetchAddressFromLatLng = async (lat: number, lng: number) => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data && data.address) {
+        setFormData((prev) => ({
+          ...prev,
+          address: data.address.road || data.display_name || "",
+          ward:
+            data.address.suburb ||
+            data.address.village ||
+            data.address.hamlet ||
+            data.address.neighbourhood ||
+            "",
+          district:
+            data.address.county ||
+            data.address.district ||
+            data.address.state_district ||
+            data.address.municipality ||
+            "",
+          city:
+            data.address.city || data.address.town || data.address.state || "",
+        }));
+      }
+    } catch (error) {
+      console.error("Không lấy được địa chỉ từ tọa độ", error);
+    }
+  };
+
   const LocationPicker = () => {
     useMapEvents({
       click(e: { latlng: { lat: number; lng: number } }) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
         setFormData((prev) => ({
           ...prev,
-          latitude: e.latlng.lat,
-          longitude: e.latlng.lng,
+          latitude: lat,
+          longitude: lng,
         }));
+        fetchAddressFromLatLng(lat, lng);
       },
     });
     return null;
