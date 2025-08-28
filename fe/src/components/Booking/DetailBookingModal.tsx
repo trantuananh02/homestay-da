@@ -267,6 +267,11 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                   Danh sách phòng
                 </h3>
               </div>
+              {booking?.homestayName && (
+                <div className="mb-2 text-sm font-semibold text-purple-700">
+                  Homestay: {booking.homestayName}
+                </div>
+              )}
 
               {/* Selected Rooms */}
               {selectedRooms?.length > 0 && (
